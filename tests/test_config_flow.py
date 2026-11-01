@@ -96,3 +96,41 @@ async def test_behavior_and_remove_are_saved_through_options(hass):
     assert result["data"]["values"] == {"bedroom_brightness": 15}
     assert not result["data"]["effects"]
     assert result["data"]["priority"] == 20
+
+
+async def test_create_group_then_reuse_dropdown_choice(hass):
+    from custom_components.modes_plus.groups import NEW_GROUP
+
+    with patch("custom_components.modes_plus.async_setup_entry", return_value=True):
+        result = await hass.config_entries.flow.async_init(
+            "modes_plus", context={"source": config_entries.SOURCE_USER}
+        )
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], {"name": "Home", "priority": 10, "group": NEW_GROUP}
+        )
+        assert result["step_id"] == "group"
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], {"name": "Presence"}
+        )
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], {"next_step_id": "finish"}
+        )
+        assert result["data"]["group"] == "Presence"
+        second = await hass.config_entries.flow.async_init(
+            "modes_plus", context={"source": config_entries.SOURCE_USER}
+        )
+        group_selector = next(
+            value
+            for key, value in second["data_schema"].schema.items()
+            if key.schema == "group"
+        )
+        assert {"value": "Presence", "label": "Presence"} in group_selector.config[
+            "options"
+        ]
+        second = await hass.config_entries.flow.async_configure(
+            second["flow_id"], {"name": "Away", "priority": 10, "group": "Presence"}
+        )
+        second = await hass.config_entries.flow.async_configure(
+            second["flow_id"], {"next_step_id": "finish"}
+        )
+        assert second["data"]["group"] == "Presence"

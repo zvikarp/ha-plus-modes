@@ -275,3 +275,37 @@ async def test_restart_reapplies_active_effects_after_device_state_reset(
     assert hass.states.get("light.shelter").attributes["brightness"] == 80
     assert restored.state["baselines"]["light.shelter"]["state"] == "off"
     restored.close()
+
+
+async def test_group_selection_replaces_and_clears_only_that_group(manager):
+    add(manager, "home", group="Presence")
+    add(manager, "away", group="Presence")
+    add(manager, "shabbat", group="Calendar")
+    await manager.change("shabbat", True)
+    await manager.select("Presence", "home")
+    await manager.select("Presence", "away", duration=30)
+    assert set(manager.state["active"]) == {"away", "shabbat"}
+    assert manager.state["active"]["away"]["until"]
+    await manager.select("Presence", "")
+    assert set(manager.state["active"]) == {"shabbat"}
+    manager.close()
+
+
+async def test_group_membership_is_checked_before_any_state_change(manager):
+    add(manager, "home", group="Presence")
+    add(manager, "shabbat", group="Calendar")
+    await manager.change("home", True)
+    with pytest.raises(HomeAssistantError, match="does not belong"):
+        await manager.select("Presence", "shabbat")
+    with pytest.raises(HomeAssistantError, match="Unknown group"):
+        await manager.select("Missing", "")
+    assert set(manager.state["active"]) == {"home"}
+
+
+async def test_independent_mode_selection_preserves_other_independent_modes(manager):
+    add(manager, "night")
+    add(manager, "shabbat")
+    await manager.change("shabbat", True)
+    await manager.select("", "night", standalone_mode_id="night")
+    await manager.select("", "", standalone_mode_id="night")
+    assert set(manager.state["active"]) == {"shabbat"}

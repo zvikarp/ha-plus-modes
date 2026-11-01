@@ -6,10 +6,11 @@ from homeassistant.core import callback
 from homeassistant.helpers import selector
 
 from .const import DOMAIN
+from .groups import NEW_GROUP, async_get_groups
 from .model import validate
 
 
-def basics(defaults):
+def basics(defaults, groups):
     return vol.Schema(
         {
             vol.Required("name", default=defaults.get("name", "")): str,
@@ -20,7 +21,19 @@ def basics(defaults):
                     min=0, max=1000, mode=selector.NumberSelectorMode.BOX
                 )
             ),
-            vol.Optional("group", default=defaults.get("group", "")): str,
+            vol.Optional(
+                "group", default=defaults.get("group", "")
+            ): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[{"value": "", "label": "Independent mode"}]
+                    + [
+                        {"value": name, "label": name}
+                        for name in sorted(groups, key=str.casefold)
+                    ]
+                    + [{"value": NEW_GROUP, "label": "Create a new group…"}],
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            ),
             vol.Optional(
                 "icon", default=defaults.get("icon", "mdi:home-switch")
             ): selector.IconSelector(),
@@ -35,15 +48,39 @@ class ModeEditor:
 
     async def _basics(self, step_id, user_input, defaults):
         errors = {}
+        groups = await async_get_groups(self.hass)
         if user_input is not None:
             try:
                 self._definition = validate({**defaults, **user_input})
+                group = self._definition["group"]
+                if group == NEW_GROUP:
+                    return await self.async_step_group()
+                if group and group not in groups.names:
+                    raise ValueError("Select an existing group")
             except ValueError:
                 errors["base"] = "invalid_definition"
             else:
                 return await self.async_step_settings()
         return self.async_show_form(
-            step_id=step_id, data_schema=basics(user_input or defaults), errors=errors
+            step_id=step_id,
+            data_schema=basics(user_input or defaults, groups.names),
+            errors=errors,
+        )
+
+    async def async_step_group(self, user_input=None):
+        errors = {}
+        if user_input is not None:
+            try:
+                groups = await async_get_groups(self.hass)
+                self._definition["group"] = await groups.create(user_input["name"])
+            except ValueError:
+                errors["base"] = "invalid_group"
+            else:
+                return await self.async_step_settings()
+        return self.async_show_form(
+            step_id="group",
+            data_schema=vol.Schema({vol.Required("name"): str}),
+            errors=errors,
         )
 
     async def async_step_settings(self, user_input=None):

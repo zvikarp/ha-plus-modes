@@ -1,150 +1,421 @@
-/* HA Plus Modes: native HA components and theme tokens, no external runtime. */
+/* HA Plus Modes uses HA components and theme tokens, with no runtime dependencies. */
 const DOMAIN = "modes_plus";
-const style = `
-:host{display:block;color:var(--primary-text-color);font-family:var(--paper-font-body1_-_font-family,Roboto,sans-serif)}
-*{box-sizing:border-box}header{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--app-header-background-color);color:var(--app-header-text-color);min-height:64px}header h1{font-size:20px;font-weight:400;flex:1;margin:0}main{max-width:1000px;margin:auto;padding:24px}h2{font-size:18px;font-weight:500;margin:0 0 16px}h3{font-size:16px;margin:0}p{line-height:1.5}.muted{color:var(--secondary-text-color);font-size:14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:16px;margin-bottom:24px}ha-card{display:block;padding:20px;border-radius:var(--ha-card-border-radius,12px);background:var(--ha-card-background,var(--card-background-color));box-shadow:var(--ha-card-box-shadow,none);border:var(--ha-card-border-width,1px) solid var(--ha-card-border-color,var(--divider-color))}.row{display:flex;align-items:center;gap:12px}.row h3{flex:1}.active ha-icon{color:var(--primary-color)}.badge{font-size:12px;color:var(--primary-color);font-weight:500}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}button,a{font:inherit}button{min-height:40px;padding:8px 12px;border:0;border-radius:var(--ha-border-radius-sm,8px);background:transparent;color:var(--primary-color);cursor:pointer;font-weight:500}button:hover{background:var(--secondary-background-color)}button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--primary-color);outline-offset:2px}button:disabled{opacity:.5;cursor:default}select{font:inherit;min-height:40px;color:var(--primary-text-color);background:var(--card-background-color);border:1px solid var(--divider-color);border-radius:8px;padding:8px;max-width:100%}a{color:var(--primary-color)}details{margin-top:16px}summary{cursor:pointer;padding:8px 0}.effect{padding:12px 0;border-bottom:1px solid var(--divider-color);overflow-wrap:anywhere}.effect:last-child{border:0}.error{color:var(--error-color);white-space:pre-wrap}.notice{padding:12px 16px;margin-bottom:16px;background:var(--secondary-background-color);border-radius:8px}section{margin-bottom:24px}ha-icon{flex-shrink:0}.compact{padding:0}.compact .grid{display:block;margin:0}.compact ha-card{padding:16px;margin:0;border:0;box-shadow:none}.compact .mode{border-top:1px solid var(--divider-color);border-radius:0}.compact h2{padding:16px 16px 0;margin:0}.compact .notice{margin:16px}@media(max-width:600px){main{padding:16px}header h1{font-size:18px}}`;
+// A monochrome vector rendering of the supplied HA Plus Modes mark.
+const LOGO_PATH = "M110 26H402Q486 26 486 110V402Q486 486 402 486H110Q26 486 26 402V386H256A130 130 0 0 0 256 126H26V110Q26 26 110 26Z M26 154H256A102 102 0 0 1 256 358H26Z M164 256A92 92 0 1 0 348 256A92 92 0 1 0 164 256Z M256 172C276 172 264 207 288 224C312 245 340 235 340 256C340 277 312 267 288 288C264 305 276 340 256 340C236 340 248 305 224 288C200 267 172 277 172 256C172 235 200 245 224 224C248 207 236 172 256 172Z";
+window.customIcons = window.customIcons || {};
+window.customIcons["modes-plus"] = {
+  getIcon: async (name) => name === "logo" ? { path: LOGO_PATH, viewBox: "0 0 512 512" } : undefined,
+};
+
+const STYLES = `
+  :host { display:block; color:var(--primary-text-color); font-family:var(--paper-font-body1_-_font-family,Roboto,sans-serif); }
+  * { box-sizing:border-box; }
+  header { display:flex; align-items:center; gap:12px; padding:12px 16px; min-height:64px; background:var(--app-header-background-color); color:var(--app-header-text-color); }
+  header h1 { font-size:20px; font-weight:400; flex:1; margin:0; }
+  main { max-width:1000px; margin:auto; padding:24px; }
+  h2 { font-size:18px; font-weight:500; margin:0 0 16px; }
+  h3 { font-size:16px; margin:0; }
+  p { line-height:1.5; }
+  .muted, .field-label { color:var(--secondary-text-color); font-size:14px; }
+  ha-card { display:block; padding:20px; margin-bottom:20px; border-radius:var(--ha-card-border-radius,16px); background:var(--ha-card-background,var(--card-background-color)); box-shadow:var(--ha-card-box-shadow,none); border:var(--ha-card-border-width,1px) solid var(--ha-card-border-color,var(--divider-color)); }
+  .row, .chips, .actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .row h3 { flex:1; }
+  .chips { margin-top:12px; }
+  .chip { display:inline-flex; align-items:center; gap:6px; max-width:100%; padding:7px 12px; border-radius:999px; background:var(--secondary-background-color); border:1px solid var(--divider-color); font-size:13px; overflow-wrap:anywhere; }
+  .chip.active { color:var(--primary-color); background:var(--primary-color-light,var(--secondary-background-color)); border-color:var(--primary-color); }
+  .chip ha-icon { --mdc-icon-size:18px; }
+  button, input { font:inherit; }
+  button { min-height:40px; padding:8px 18px; border:0; border-radius:999px; background:var(--secondary-background-color); color:var(--primary-color); cursor:pointer; font-weight:500; }
+  button:hover { filter:brightness(.96); }
+  button.primary { background:var(--primary-color); color:var(--text-primary-color,#fff); }
+  button:disabled { opacity:.5; cursor:default; }
+  button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visible { outline:2px solid var(--primary-color); outline-offset:3px; }
+  .icon-button { display:grid; place-items:center; width:44px; height:44px; min-width:44px; padding:0; border-radius:50%; color:inherit; background:transparent; }
+  .icon-button:hover { background:var(--secondary-background-color); }
+  .controls { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)) auto; align-items:end; gap:12px; }
+  .field { position:relative; min-width:0; }
+  .field-label { display:block; margin-bottom:8px; }
+  .combobox { display:flex; align-items:center; gap:8px; width:100%; justify-content:space-between; text-align:start; border:1px solid var(--divider-color); border-radius:14px; color:var(--primary-text-color); min-height:48px; padding:10px 14px; }
+  .combobox span { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .listbox { position:absolute; z-index:10; top:100%; left:0; right:0; margin-top:4px; max-height:300px; overflow:auto; padding:6px; background:var(--card-background-color); border:1px solid var(--divider-color); border-radius:14px; box-shadow:var(--ha-card-box-shadow,0 4px 16px #0003); }
+  .listbox[hidden] { display:none; }
+  .option { display:block; width:100%; text-align:start; border-radius:10px; background:transparent; color:var(--primary-text-color); white-space:normal; overflow-wrap:anywhere; }
+  .option[aria-selected="true"] { color:var(--primary-color); background:var(--secondary-background-color); }
+  .group { border-inline-start:4px solid var(--divider-color); }
+  .group.has-active { border-inline-start-color:var(--primary-color); }
+  .group-state { margin:12px 0 4px; font-size:20px; font-weight:500; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr)); gap:16px; }
+  .grid ha-card { margin:0; }
+  section { margin-bottom:24px; }
+  details { margin-top:16px; }
+  summary { cursor:pointer; padding:8px 0; }
+  .effect { padding:12px 0; border-bottom:1px solid var(--divider-color); overflow-wrap:anywhere; }
+  .effect:last-child { border:0; }
+  .notice { padding:12px 16px; margin-bottom:16px; background:var(--secondary-background-color); border-radius:14px; }
+  .error { color:var(--error-color); white-space:pre-wrap; }
+  a { color:var(--primary-color); }
+  ha-icon { flex-shrink:0; }
+  .create-group { margin:16px 0; }
+  .create-group form { display:flex; align-items:end; gap:12px; flex-wrap:wrap; margin-top:12px; }
+  input { min-height:48px; border:1px solid var(--divider-color); border-radius:14px; padding:10px 14px; color:var(--primary-text-color); background:var(--secondary-background-color); max-width:100%; }
+  .compact { padding:16px; }
+  .compact .controls { grid-template-columns:1fr; }
+  .compact .grid { display:block; }
+  .compact .group { margin-bottom:12px; padding:12px; }
+  @media(max-width:700px) { main { padding:16px; } .controls { grid-template-columns:1fr 1fr; } .controls .field:first-child { grid-column:1 / -1; } .controls .primary { grid-column:1 / -1; } header h1 { font-size:18px; } }
+`;
+const DURATIONS = [[0, "Until cleared"], [30, "30 minutes"], [60, "1 hour"], [120, "2 hours"], [480, "8 hours"]];
+let nextId = 0;
 function el(tag, text, className) {
   const node = document.createElement(tag);
   if (text !== undefined) node.textContent = text;
   if (className) node.className = className;
   return node;
 }
-function button(text, handler, disabled = false) {
-  const node = el("button", text); node.type = "button";
-  node.disabled = disabled; node.addEventListener("click", handler); return node;
+function icon(name) {
+  const node = el("ha-icon");
+  node.setAttribute("icon", name);
+  return node;
 }
-function icon(name) { const node = el("ha-icon"); node.setAttribute("icon", name); return node; }
+function button(text, handler, disabled = false, className) {
+  const node = el("button", text, className);
+  node.type = "button";
+  node.disabled = disabled;
+  node.addEventListener("click", handler);
+  return node;
+}
 function when(value) { return new Date(value).toLocaleString(); }
 
+/** Themed, keyboard-operable listbox: no platform-default select menus. */
+function dropdown(key, label, options, value, change, disabled) {
+  const field = el("div", undefined, "field");
+  const labelNode = el("span", label, "field-label");
+  labelNode.id = `modes-label-${++nextId}`;
+  const trigger = button(undefined, () => setOpen(menu.hidden), disabled, "combobox");
+  trigger.dataset.control = key;
+  trigger.setAttribute("role", "combobox");
+  trigger.setAttribute("aria-labelledby", labelNode.id);
+  trigger.setAttribute("aria-haspopup", "listbox");
+  trigger.setAttribute("aria-expanded", "false");
+  trigger.append(el("span", options.find(option => option.value === value)?.label || "Choose…"), icon("mdi:chevron-down"));
+  const menu = el("div", undefined, "listbox");
+  menu.id = `modes-list-${nextId}`;
+  menu.hidden = true;
+  menu.setAttribute("role", "listbox");
+  menu.setAttribute("aria-labelledby", labelNode.id);
+  trigger.setAttribute("aria-controls", menu.id);
+  const choices = options.map(option => {
+    const item = button(option.label, () => {
+      setOpen(false);
+      change(option.value);
+    }, false, "option");
+    item.setAttribute("role", "option");
+    item.setAttribute("aria-selected", String(option.value === value));
+    item.tabIndex = -1;
+    menu.append(item);
+    return item;
+  });
+  function setOpen(open) {
+    menu.hidden = !open;
+    trigger.setAttribute("aria-expanded", String(open));
+    if (open) choices[Math.max(0, options.findIndex(option => option.value === value))]?.focus();
+    else trigger.focus();
+  }
+  field.addEventListener("keydown", event => {
+    const index = choices.indexOf(event.target);
+    if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+      event.preventDefault();
+      if (menu.hidden) setOpen(true);
+      else {
+        const target = event.key === "Home" ? 0 : event.key === "End" ? choices.length - 1 : (index + (event.key === "ArrowDown" ? 1 : -1) + choices.length) % choices.length;
+        choices[target]?.focus();
+      }
+    } else if (event.key === "Escape") {
+      event.preventDefault();
+      setOpen(false);
+    }
+  });
+  field.addEventListener("focusout", event => {
+    if (!field.contains(event.relatedTarget)) {
+      menu.hidden = true;
+      trigger.setAttribute("aria-expanded", "false");
+    }
+  });
+  field.append(labelNode, trigger, menu);
+  return field;
+}
+
 class ModesView extends HTMLElement {
-  constructor() { super(); this.attachShadow({mode:"open"}); this._busy = false; this._generation = 0; }
-  set narrow(value) { this._narrow = value; if (this._hass && this._data) this._render(); }
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+    this._busy = false;
+    this._generation = 0;
+    this._selection = { group: "", mode: "", duration: 0 };
+    this._outside = event => {
+      for (const field of this.shadowRoot.querySelectorAll(".field")) {
+        if (!event.composedPath().includes(field)) {
+          const menu = field.querySelector(".listbox");
+          if (menu) menu.hidden = true;
+          field.querySelector(".combobox")?.setAttribute("aria-expanded", "false");
+        }
+      }
+    };
+  }
+  set narrow(value) { this._narrow = value; if (this._data) this._render(); }
   get narrow() { return this._narrow; }
   set hass(value) {
-    const previous = this._hass; this._hass = value;
+    const previous = this._hass;
+    this._hass = value;
     if (!this.isConnected) return;
-    const changed = !previous || Object.keys(value.states).some(key => {
-      const state = value.states[key];
-      return state.attributes.mode_id && state !== previous.states[key];
-    }) || Object.keys(previous.states).some(key => previous.states[key].attributes.mode_id && !value.states[key]);
+    const changed = !previous || Object.keys(value.states).some(key => value.states[key].attributes.mode_id && value.states[key] !== previous.states[key]) || Object.keys(previous.states).some(key => previous.states[key].attributes.mode_id && !value.states[key]);
     if (changed || !this._data) this._refresh();
   }
-  connectedCallback() { if (this._hass) this._refresh(); }
-  disconnectedCallback() { this._generation++; }
+  connectedCallback() {
+    this.ownerDocument.addEventListener("pointerdown", this._outside, true);
+    if (this._hass) this._refresh();
+  }
+  disconnectedCallback() {
+    this._generation++;
+    this.ownerDocument.removeEventListener("pointerdown", this._outside, true);
+  }
   async _refresh() {
     if (this._loading) { this._again = true; return; }
-    this._loading = true; const generation = this._generation;
+    this._loading = true;
+    const generation = this._generation;
     if (!this._data) this._render();
     try {
-      const data = await this._hass.callWS({type:"modes_plus/snapshot"});
+      const data = await this._hass.callWS({ type: "modes_plus/snapshot" });
       if (generation === this._generation) { this._data = data; this._error = ""; }
-    } catch (err) { this._error = err.message || "Unable to load modes."; }
+    } catch (error) { this._error = error.message || "Unable to load modes."; }
     finally {
       this._loading = false;
       if (this.isConnected) this._render();
       if (this._again && this.isConnected) { this._again = false; this._refresh(); }
     }
   }
-  async _action(service, data) {
-    this._busy = true; this._error = ""; this._render();
-    try { await this._hass.callService(DOMAIN, service, data); }
-    catch (err) { this._error = err.message || "The action failed. Try again."; }
+  async _perform(request) {
+    this._busy = true;
+    this._error = "";
+    this._render();
+    try { await request(); }
+    catch (error) { this._error = error.message || "The action failed. Try again."; }
     finally {
       this._busy = false;
-      // Keep action failures visible while refreshing the current state.
       const error = this._error;
       await this._refresh();
       if (error) { this._error = error; this._render(); }
     }
   }
-  _mode(mode) {
-    const card = el("ha-card", undefined, "mode" + (mode.active ? " active" : ""));
-    const row = el("div", undefined, "row"); row.append(icon(mode.icon || "mdi:home-switch"), el("h3", mode.name), el("span", mode.active ? "Active" : "Inactive", "badge")); card.append(row);
-    const owned = Object.values(this._data.effects).filter(item => item.mode_id === mode.id).length + Object.values(this._data.values).filter(item => item.mode_id === mode.id).length;
-    const total = Object.keys(mode.effects).length + Object.keys(mode.values).length;
-    card.append(el("p", `Priority ${mode.priority}${mode.group ? " · " + mode.group : ""}`, "muted"));
-    if (mode.active) {
-      card.append(el("p", `Started ${when(mode.active.since)} · ${mode.active.source}`, "muted"));
-      if (mode.active.until) card.append(el("p", `Ends ${when(mode.active.until)}`, "muted"));
-      card.append(el("p", `${owned} effective · ${total - owned} overridden`, "muted"));
+  _action(service, data) { return this._perform(() => this._hass.callService(DOMAIN, service, data)); }
+  _groups(modes) {
+    const groups = new Map((this._data.groups || []).map(name => [`group:${name}`, { key: `group:${name}`, name, group: name, members: [] }]));
+    for (const mode of modes) {
+      const key = mode.group ? `group:${mode.group}` : `mode:${mode.id}`;
+      if (!groups.has(key)) groups.set(key, { key, name: mode.group || mode.name, group: mode.group || "", members: [] });
+      groups.get(key).members.push(mode);
     }
-    const actions = el("div", undefined, "actions");
-    const duration = el("select"); duration.setAttribute("aria-label", `Duration for ${mode.name}`);
-    for (const [value, label] of [[0,"Until turned off"],[30,"30 minutes"],[60,"1 hour"],[120,"2 hours"],[480,"8 hours"]]) {
-      const option = el("option", label); option.value = value; duration.append(option);
+    // Include the whole exclusive group so its active setting is never hidden.
+    return [...groups.values()].filter(group => !this._config?.modes?.length || group.members.some(mode => this._config.modes.includes(mode.id))).sort((a, b) => a.name.localeCompare(b.name));
+  }
+  _choose(key, value) {
+    this._selection[key] = value;
+    if (key === "group") {
+      this._selection.duration = 0;
+      const group = this._currentGroups.find(item => item.key === value);
+      this._selection.mode = group?.members.find(mode => mode.active)?.id || "";
     }
-    duration.disabled = this._busy;
-    if (!mode.active) actions.append(duration);
-    actions.append(button(mode.active ? "End mode" : "Activate", () => this._action(mode.active ? "deactivate" : "activate", {mode_id:mode.id, ...(!mode.active ? {duration:Number(duration.value)} : {})}), this._busy));
-    card.append(actions);
-    const detail = el("details"); detail.append(el("summary", "Settings and return behavior"));
+    this._render();
+    this.shadowRoot.querySelector(`[data-control="${key}"]`)?.focus();
+  }
+  _apply(group) {
+    return this._action("select", {
+      group: group.group,
+      mode_id: this._selection.mode,
+      duration: Number(this._selection.duration),
+      ...(!group.group ? { standalone_mode_id: group.members[0].id } : {}),
+    });
+  }
+  _controls(groups) {
+    if (!groups.length) return el("p", "Create a mode in Devices & services to get started.", "muted");
+    let group = groups.find(item => item.key === this._selection.group);
+    if (!group) {
+      group = groups[0];
+      this._selection.group = group.key;
+      this._selection.mode = group.members.find(mode => mode.active)?.id || "";
+    }
+    if (!group.members.some(mode => mode.id === this._selection.mode)) this._selection.mode = "";
+    const form = el("div", undefined, "controls");
+    form.append(
+      dropdown("group", "Group", groups.map(item => ({ value: item.key, label: item.name })), group.key, value => this._choose("group", value), this._busy),
+      dropdown("mode", "Mode", [{ value: "", label: "None · normal behavior" }, ...group.members.map(mode => ({ value: mode.id, label: mode.name }))], this._selection.mode, value => this._choose("mode", value), this._busy || !group.members.length),
+      dropdown("duration", "Duration", DURATIONS.map(([value, label]) => ({ value, label })), this._selection.duration, value => this._choose("duration", value), this._busy || !this._selection.mode),
+      button("Apply", () => this._apply(group), this._busy || !group.members.length, "primary"),
+    );
+    return form;
+  }
+  _modeDetails(mode) {
+    const detail = el("details");
+    detail.append(el("summary", `${mode.name} · priority ${mode.priority}`));
     for (const [key, effect] of Object.entries(mode.effects)) {
-      const winner = this._data.effects[key];
-      const owner = this._data.modes.find(item => item.id === winner?.mode_id);
-      const friendly = this._hass.states[key]?.attributes.friendly_name || key;
-      detail.append(el("p", `${friendly}: ${effect.state}${effect.brightness ? ` · brightness ${Math.round(effect.brightness / 255 * 100)}%` : ""}${mode.active && owner && owner.id !== mode.id ? ` · overridden by ${owner.name}` : ""}`));
+      const owner = this._data.modes.find(item => item.id === this._data.effects[key]?.mode_id);
+      const name = this._hass.states[key]?.attributes.friendly_name || key;
+      detail.append(el("p", `${name}: ${effect.state}${effect.brightness ? ` · brightness ${Math.round(effect.brightness / 255 * 100)}%` : ""}${mode.active && owner && owner.id !== mode.id ? ` · overridden by ${owner.name}` : ""}`));
     }
     for (const [key, value] of Object.entries(mode.values)) detail.append(el("p", `${key}: ${value}`));
-    if (!total) detail.append(el("p", "No managed settings. Use this mode as an automation condition."));
-    detail.append(el("p", "Ending this mode applies the remaining modes. With no remaining owner, the previous device state is restored only if no later device update changed its command context. Manual changes are respected while the winning effect stays the same.", "muted"));
-    card.append(detail); return card;
+    if (!Object.keys(mode.effects).length && !Object.keys(mode.values).length) detail.append(el("p", "No managed settings. Use this mode as an automation condition.", "muted"));
+    return detail;
+  }
+  _groupCard(group) {
+    const active = group.members.find(mode => mode.active);
+    const card = el("ha-card", undefined, `group${active ? " has-active" : ""}`);
+    const row = el("div", undefined, "row");
+    row.append(icon(active?.icon || "mdi:layers-outline"), el("h3", group.name));
+    card.append(row, el("p", active?.name || "Normal behavior", "group-state"));
+    if (active) {
+      card.append(el("p", `Started ${when(active.active.since)} · ${active.active.source}`, "muted"));
+      if (active.active.until) card.append(el("p", `Ends ${when(active.active.until)}`, "muted"));
+      const owned = [...Object.values(this._data.effects), ...Object.values(this._data.values)].filter(item => item.mode_id === active.id).length;
+      const total = Object.keys(active.effects).length + Object.keys(active.values).length;
+      card.append(el("p", `${owned} effective · ${total - owned} overridden`, "muted"));
+    }
+    const chips = el("div", undefined, "chips");
+    for (const mode of group.members) {
+      const chip = el("span", undefined, `chip${mode.active ? " active" : ""}`);
+      chip.append(icon(mode.icon || "mdi:home-switch"), el("span", mode.name));
+      chip.setAttribute("aria-label", `${mode.name}: ${mode.active ? "active" : "inactive"}`);
+      chips.append(chip);
+    }
+    card.append(chips);
+    if (!group.members.length) card.append(el("p", "No modes yet. Choose this group when adding a mode in Devices & services.", "muted"));
+    for (const mode of group.members) card.append(this._modeDetails(mode));
+    return card;
+  }
+  _newGroup() {
+    const detail = el("details", undefined, "create-group");
+    detail.append(el("summary", "Create group"));
+    const form = el("form");
+    const label = el("label", "Group name", "field-label");
+    const input = el("input");
+    input.name = "group_name";
+    input.required = true;
+    input.maxLength = 80;
+    input.autocomplete = "off";
+    input.disabled = this._busy;
+    label.append(input);
+    const submit = el("button", "Create group");
+    submit.type = "submit";
+    submit.disabled = this._busy;
+    form.append(label, submit);
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+      const name = input.value.trim();
+      if (!name) return;
+      this._perform(async () => {
+        const result = await this._hass.callWS({ type: "modes_plus/create_group", name });
+        this._selection.group = `group:${result.name}`;
+        this._selection.mode = "";
+        this._selection.duration = 0;
+      });
+    });
+    detail.append(form);
+    return detail;
   }
   _render() {
-    this.shadowRoot.replaceChildren(el("style", style));
+    const focused = this.shadowRoot.activeElement?.dataset.control;
+    this.shadowRoot.replaceChildren(el("style", STYLES));
     const compact = this.localName === "modes-plus-card";
     const root = el(compact ? "ha-card" : "div");
     if (!compact) {
       const header = el("header");
-      const menu = el("ha-menu-button"); menu.hass = this._hass; menu.narrow = this.narrow;
-      header.append(menu, el("h1", "HA Plus Modes"), button("Refresh", () => this._refresh(), this._loading)); root.append(header);
+      const menu = el("ha-menu-button");
+      menu.hass = this._hass;
+      menu.narrow = this.narrow;
+      const refresh = button(undefined, () => this._refresh(), this._loading, "icon-button");
+      refresh.setAttribute("aria-label", "Refresh modes");
+      refresh.title = "Refresh modes";
+      refresh.append(icon("mdi:refresh"));
+      header.append(menu, el("h1", "HA Plus Modes"), refresh);
+      root.append(header);
     }
-    const main = el("main", undefined, compact ? "compact" : ""); root.append(main);
+    const main = el("main", undefined, compact ? "compact" : "");
+    root.append(main);
     if (compact) main.append(el("h2", this._config?.title || "Home modes"));
-    if (this._error) { const notice = el("div", this._error, "notice error"); notice.setAttribute("role", "alert"); notice.append(button("Retry", () => this._refresh())); main.append(notice); }
-    if (!this._data) { main.append(el("p", this._error ? "" : "Loading modes…", "notice")); this.shadowRoot.append(root); return; }
-    let modes = [...this._data.modes].sort((a,b) => b.priority - a.priority || a.name.localeCompare(b.name));
-    if (compact && this._config?.modes?.length) modes = modes.filter(mode => this._config.modes.includes(mode.id));
-    for (const active of [true, false]) {
-      const list = modes.filter(mode => !!mode.active === active);
-      if (!compact) main.append(el("h2", active ? "Your home now" : "Other modes"));
-      const grid = el("div", undefined, "grid");
-      for (const mode of list) grid.append(this._mode(mode));
-      if (!list.length && !compact) grid.append(el("p", active ? "No modes active. Your normal household settings apply." : "All configured modes are active.", "muted"));
-      main.append(grid);
-    }
-    if (compact && !modes.length) main.append(el("p", "No modes match this card. Check its configured mode IDs.", "notice"));
-    if (compact && Object.keys(this._data.errors).length) {
-      const notice = el("div", "Some device actions need attention. ", "notice error");
+    if (this._error) {
+      const notice = el("div", this._error, "notice error");
       notice.setAttribute("role", "alert");
-      const link = el("a", "View details"); link.href = "/ha-plus-modes";
-      notice.append(link, button("Retry device actions", () => this._action("retry", {}), this._busy));
+      notice.append(button("Retry", () => this._refresh()));
       main.append(notice);
     }
+    if (!this._data) {
+      main.append(el("p", this._error ? "" : "Loading modes…", "notice"));
+      this.shadowRoot.append(root);
+      return;
+    }
+    let modes = [...this._data.modes].sort((a, b) => b.priority - a.priority || a.name.localeCompare(b.name));
+    const groups = this._groups(modes);
+    this._currentGroups = groups;
+    const controls = compact ? el("section") : el("ha-card");
+    if (!compact) controls.append(el("h2", "Choose a household setting"));
+    controls.append(this._controls(groups));
     if (!compact) {
-      const explain = el("ha-card"); explain.append(el("h2", "Effective settings"));
-      for (const [key,item] of Object.entries(this._data.effects)) {
-        const owner = modes.find(mode => mode.id === item.mode_id);
-        explain.append(el("div", `${this._hass.states[key]?.attributes.friendly_name || key} → ${item.desired.state}${item.desired.brightness ? ` · ${Math.round(item.desired.brightness/255*100)}%` : ""} · ${owner?.name || item.mode_id}`, "effect"));
+      controls.append(el("p", "Each group has one selected mode. Different groups can stay active together; higher priorities override conflicting settings. Choose None to clear a group.", "muted"));
+      if (this._hass.user?.is_admin) controls.append(this._newGroup());
+    }
+    main.append(controls);
+    if (!compact) main.append(el("h2", "Your groups"));
+    const grid = el("section", undefined, "grid");
+    for (const group of groups) grid.append(this._groupCard(group));
+    main.append(grid);
+    const errors = Object.entries(this._data.errors);
+    if (errors.length) {
+      const box = el("div", undefined, "notice error");
+      box.setAttribute("role", "alert");
+      box.append(el("p", "Some device actions need attention."));
+      if (!compact) for (const [key, error] of errors) box.append(el("p", `${key}: ${error}`));
+      const link = el("a", "View details");
+      link.href = "/ha-plus-modes";
+      box.append(link, button("Retry device actions", () => this._action("retry", {}), this._busy));
+      main.append(box);
+    }
+    if (!compact) {
+      const explain = el("ha-card");
+      explain.append(el("h2", "Effective settings"));
+      for (const [key, item] of Object.entries(this._data.effects)) {
+        const owner = this._data.modes.find(mode => mode.id === item.mode_id);
+        explain.append(el("div", `${this._hass.states[key]?.attributes.friendly_name || key} → ${item.desired.state}${item.desired.brightness ? ` · ${Math.round(item.desired.brightness / 255 * 100)}%` : ""} · ${owner?.group ? owner.group + " / " : ""}${owner?.name || item.mode_id}`, "effect"));
       }
-      for (const [key,item] of Object.entries(this._data.values)) explain.append(el("div", `${key} → ${item.value} · ${modes.find(mode => mode.id === item.mode_id)?.name}`, "effect"));
+      for (const [key, item] of Object.entries(this._data.values)) {
+        const owner = this._data.modes.find(mode => mode.id === item.mode_id);
+        explain.append(el("div", `${key} → ${item.value} · ${owner?.group ? owner.group + " / " : ""}${owner?.name}`, "effect"));
+      }
       if (!Object.keys(this._data.effects).length && !Object.keys(this._data.values).length) explain.append(el("p", "No settings are currently controlled by modes.", "muted"));
-      const section = el("section"); section.append(explain); main.append(section);
-      const errors = Object.entries(this._data.errors);
-      if (errors.length) { const box = el("ha-card"); box.append(el("h2", "Some device actions need attention")); for (const [key,error] of errors) box.append(el("p", `${key}: ${error}`, "error")); box.append(button("Retry device actions", () => this._action("retry", {}), this._busy)); main.append(box); }
-      const history = el("details"); history.append(el("summary", "Recent changes"));
-      for (const item of this._data.history) history.append(el("p", `${item.mode} ${item.active ? "activated" : "ended"} · ${when(item.at)}`, "muted")); main.append(history);
-      if (this._hass.user?.is_admin) { const link = el("a", "Add or configure modes in Devices & services"); link.href = "/config/integrations/integration/modes_plus"; main.append(link); }
+      main.append(explain);
+      const history = el("details");
+      history.append(el("summary", "Recent changes"));
+      for (const item of this._data.history) history.append(el("p", `${item.mode} ${item.active ? "selected" : "cleared"} · ${when(item.at)}`, "muted"));
+      main.append(history);
+      if (this._hass.user?.is_admin) {
+        const link = el("a", "Add or configure modes in Devices & services");
+        link.href = "/config/integrations/integration/modes_plus";
+        main.append(link);
+      }
     }
     this.shadowRoot.append(root);
+    if (focused) this.shadowRoot.querySelector(`[data-control="${focused}"]`)?.focus();
   }
 }
 class ModesPlusPanel extends ModesView {}
 class ModesPlusCard extends ModesView {
-  setConfig(config) { if (config.modes !== undefined && (!Array.isArray(config.modes) || config.modes.some(value => typeof value !== "string"))) throw new Error("modes must be a list of mode IDs"); this._config = config; if (this._hass) this._render(); }
-  getCardSize() { return 4; }
-  static getStubConfig() { return {title:"Home modes"}; }
+  setConfig(config) {
+    if (config.modes !== undefined && (!Array.isArray(config.modes) || config.modes.some(value => typeof value !== "string"))) throw new Error("modes must be a list of mode IDs");
+    this._config = config;
+    if (this._hass) this._render();
+  }
+  getCardSize() { return 5; }
+  static getStubConfig() { return { title: "Home modes" }; }
 }
 if (!customElements.get("modes-plus-panel")) customElements.define("modes-plus-panel", ModesPlusPanel);
 if (!customElements.get("modes-plus-card")) customElements.define("modes-plus-card", ModesPlusCard);
 window.customCards = window.customCards || [];
-if (!window.customCards.some(card => card.type === "modes-plus-card")) window.customCards.push({type:"modes-plus-card",name:"HA Plus Modes",description:"Household modes, priorities, and temporary overrides",preview:true});
+if (!window.customCards.some(card => card.type === "modes-plus-card")) window.customCards.push({ type: "modes-plus-card", name: "HA Plus Modes", description: "Groups, household settings, and temporary overrides", preview: true });

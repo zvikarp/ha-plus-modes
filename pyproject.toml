@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ha-plus-modes"
-version = "0.1.0"
+version = "0.2.0"
 description = "Local household modes and temporary overrides for Home Assistant"
 requires-python = ">=3.13"
 
@@ -15,7 +15,7 @@ test = ["pytest-homeassistant-custom-component==0.13.204", "home-assistant-front
 include = ["custom_components*"]
 
 [tool.setuptools.package-data]
-"custom_components.modes_plus" = ["*.json", "*.yaml", "frontend/*.js", "translations/*.json", "brand/*.png"]
+"custom_components.modes_plus" = ["*.json", "*.yaml", "frontend/*.js", "translations/*.json", "brand/*.png", "brand/*.svg"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

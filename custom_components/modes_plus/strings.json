@@ -4,11 +4,11 @@
     "step": {
       "user": {
         "title": "HA Plus Modes",
-        "description": "Create a household mode. Higher priorities override conflicting settings. Leave the group empty to let this mode coexist with others. Modes sharing a group replace each other.",
+        "description": "Choose a group for mutually exclusive settings, or keep this mode independent so it can coexist with others. Create groups from the dropdown. Higher priorities override conflicting device settings across groups.",
         "data": {
           "name": "Name",
           "priority": "Priority (higher wins)",
-          "group": "Exclusive group (optional)",
+          "group": "Group",
           "icon": "Icon"
         }
       },
@@ -44,22 +44,30 @@
         "data": {
           "setting": "Setting"
         }
+      },
+      "group": {
+        "title": "Create group",
+        "description": "Give this group a name, such as Presence or Daily rhythm. You can reuse it for other modes.",
+        "data": {
+          "name": "Group name"
+        }
       }
     },
     "error": {
       "invalid_definition": "Enter a name, valid priority, and a nonempty behavior name.",
-      "invalid_effect": "Use a light or switch. Brightness is only available for lights set to On. Mode switches cannot be managed as effects."
+      "invalid_effect": "Use a light or switch. Brightness is only available for lights set to On. Mode switches cannot be managed as effects.",
+      "invalid_group": "Enter a group name between 1 and 80 characters."
     }
   },
   "options": {
     "step": {
       "init": {
         "title": "HA Plus Modes",
-        "description": "Create a household mode. Higher priorities override conflicting settings. Leave the group empty to let this mode coexist with others. Modes sharing a group replace each other.",
+        "description": "Choose a group for mutually exclusive settings, or keep this mode independent so it can coexist with others. Create groups from the dropdown. Higher priorities override conflicting device settings across groups.",
         "data": {
           "name": "Name",
           "priority": "Priority (higher wins)",
-          "group": "Exclusive group (optional)",
+          "group": "Group",
           "icon": "Icon"
         }
       },
@@ -95,11 +103,19 @@
         "data": {
           "setting": "Setting"
         }
+      },
+      "group": {
+        "title": "Create group",
+        "description": "Give this group a name, such as Presence or Daily rhythm. You can reuse it for other modes.",
+        "data": {
+          "name": "Group name"
+        }
       }
     },
     "error": {
       "invalid_definition": "Enter a name, valid priority, and a nonempty behavior name.",
-      "invalid_effect": "Use a light or switch. Brightness is only available for lights set to On. Mode switches cannot be managed as effects."
+      "invalid_effect": "Use a light or switch. Brightness is only available for lights set to On. Mode switches cannot be managed as effects.",
+      "invalid_group": "Enter a group name between 1 and 80 characters."
     }
   }
 }

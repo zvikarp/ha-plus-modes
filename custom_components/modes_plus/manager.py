@@ -13,6 +13,7 @@ from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, SIGNAL
+from .groups import async_get_groups
 from .model import resolve, validate
 
 
@@ -21,6 +22,7 @@ class ModeManager:
         self.hass = hass
         self.modes = {}
         self.state = {"active": {}, "baselines": {}, "applied": {}, "history": []}
+        self.groups = None
         self.errors = {}
         self.lock = asyncio.Lock()
         self.store = Store(hass, 1, DOMAIN)
@@ -29,6 +31,7 @@ class ModeManager:
         self.listeners = []
 
     async def load(self):
+        self.groups = await async_get_groups(self.hass)
         saved = await self.store.async_load()
         if saved:
             self.state.update(saved)
@@ -62,61 +65,95 @@ class ModeManager:
 
     async def change(self, mode_id, active, duration=0, context=None):
         async with self.lock:
-            if mode_id not in self.modes:
-                raise HomeAssistantError("Unknown mode")
-            if not self.ready:
-                raise HomeAssistantError(
-                    "Modes are waiting for Home Assistant to finish starting"
-                )
-            affected = set(self.modes[mode_id]["effects"])
-            registry = er.async_get(self.hass)
-            affected.update(
-                item.entity_id
-                for item in er.async_entries_for_config_entry(registry, mode_id)
-                if item.domain == "switch"
-            )
-            group = self.modes[mode_id]["group"]
+            await self._change_locked(mode_id, active, duration, context)
+
+    async def select(
+        self, group, mode_id, duration=0, context=None, standalone_mode_id=None
+    ):
+        """Validate membership and choose/clear a group under the transition lock."""
+        async with self.lock:
             if group:
-                for key in self.state["active"]:
-                    if self.modes[key]["group"] == group:
-                        affected.update(self.modes[key]["effects"])
-                        affected.update(
-                            item.entity_id
-                            for item in er.async_entries_for_config_entry(registry, key)
-                            if item.domain == "switch"
-                        )
-            await self._authorize(affected, context)
-            self._expire()
-            if active:
-                group = self.modes[mode_id]["group"]
-                if group:
-                    for other in list(self.state["active"]):
-                        if other != mode_id and self.modes[other]["group"] == group:
-                            self.state["active"].pop(other)
-                now = dt_util.utcnow()
-                self.state["active"][mode_id] = {
-                    "since": now.isoformat(),
-                    "until": (now + timedelta(minutes=duration)).isoformat()
-                    if duration
-                    else None,
-                    "source": "user" if context and context.user_id else "automation",
+                known = set(self.groups.names if self.groups else ()) | {
+                    mode["group"] for mode in self.modes.values() if mode["group"]
+                }
+                if group not in known or standalone_mode_id is not None:
+                    raise HomeAssistantError("Unknown group")
+                members = {
+                    key for key, mode in self.modes.items() if mode["group"] == group
                 }
             else:
-                self.state["active"].pop(mode_id, None)
-            self.state["history"] = (
-                [
-                    {
-                        "mode": self.modes[mode_id]["name"],
-                        "active": active,
-                        "at": dt_util.utcnow().isoformat(),
-                    }
-                ]
-                + self.state["history"]
-            )[:30]
-            # Commit intent before device commands: restart recovery can finish a transition.
-            await self.store.async_save(self.state)
-            await self._reconcile(context)
-            self._timer()
+                if (
+                    standalone_mode_id not in self.modes
+                    or self.modes[standalone_mode_id]["group"]
+                ):
+                    raise HomeAssistantError("Choose an independent mode")
+                members = {standalone_mode_id}
+            if mode_id:
+                if mode_id not in members:
+                    raise HomeAssistantError(
+                        "This mode does not belong to the selected group"
+                    )
+                await self._change_locked(mode_id, True, duration, context)
+            else:
+                for key in sorted(members & self.state["active"].keys()):
+                    await self._change_locked(key, False, 0, context)
+
+    async def _change_locked(self, mode_id, active, duration, context):
+        if mode_id not in self.modes:
+            raise HomeAssistantError("Unknown mode")
+        if not self.ready:
+            raise HomeAssistantError(
+                "Modes are waiting for Home Assistant to finish starting"
+            )
+        affected = set(self.modes[mode_id]["effects"])
+        registry = er.async_get(self.hass)
+        affected.update(
+            item.entity_id
+            for item in er.async_entries_for_config_entry(registry, mode_id)
+            if item.domain == "switch"
+        )
+        group = self.modes[mode_id]["group"]
+        if group:
+            for key in self.state["active"]:
+                if self.modes[key]["group"] == group:
+                    affected.update(self.modes[key]["effects"])
+                    affected.update(
+                        item.entity_id
+                        for item in er.async_entries_for_config_entry(registry, key)
+                        if item.domain == "switch"
+                    )
+        await self._authorize(affected, context)
+        self._expire()
+        if active:
+            group = self.modes[mode_id]["group"]
+            if group:
+                for other in list(self.state["active"]):
+                    if other != mode_id and self.modes[other]["group"] == group:
+                        self.state["active"].pop(other)
+            now = dt_util.utcnow()
+            self.state["active"][mode_id] = {
+                "since": now.isoformat(),
+                "until": (now + timedelta(minutes=duration)).isoformat()
+                if duration
+                else None,
+                "source": "user" if context and context.user_id else "automation",
+            }
+        else:
+            self.state["active"].pop(mode_id, None)
+        self.state["history"] = (
+            [
+                {
+                    "mode": self.modes[mode_id]["name"],
+                    "active": active,
+                    "at": dt_util.utcnow().isoformat(),
+                }
+            ]
+            + self.state["history"]
+        )[:30]
+        # Commit intent before device commands: restart recovery can finish a transition.
+        await self.store.async_save(self.state)
+        await self._reconcile(context)
+        self._timer()
 
     def _expire(self):
         now = dt_util.utcnow()
@@ -147,6 +184,11 @@ class ModeManager:
     def snapshot(self):
         effects, values = resolve(self.modes, self.state["active"])
         return {
+            "groups": sorted(
+                set(self.groups.names if self.groups else ())
+                | {mode["group"] for mode in self.modes.values() if mode["group"]},
+                key=str.casefold,
+            ),
             "modes": [
                 {"id": key, **mode, "active": self.state["active"].get(key)}
                 for key, mode in self.modes.items()
