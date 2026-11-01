@@ -69,7 +69,9 @@ async def test_setup_entities_actions_options_and_unload(hass):
 
 
 @patch("homeassistant.components.http.HomeAssistantHTTP.start", new=AsyncMock())
-async def test_real_frontend_registration(hass, hass_client, hass_ws_client):
+async def test_real_frontend_registration(
+    hass, hass_client, hass_ws_client, hass_read_only_access_token
+):
     assert await async_setup_component(hass, "http", {})
     assert await async_setup_component(hass, "frontend", {})
     from custom_components.modes_plus.frontend import (
@@ -91,6 +93,22 @@ async def test_real_frontend_registration(hass, hass_client, hass_ws_client):
     result = await ws.receive_json()
     assert result["success"]
     assert result["result"]["modes"] == []
+    assert (
+        hass.data["frontend_panels"]["ha-plus-modes"].sidebar_icon == "modes-plus:logo"
+    )
+    await ws.send_json({"id": 2, "type": "modes_plus/create_group", "name": "Presence"})
+    created = await ws.receive_json()
+    assert created["success"]
+    assert created["result"]["name"] == "Presence"
+    await ws.send_json({"id": 3, "type": "modes_plus/snapshot"})
+    assert (await ws.receive_json())["result"]["groups"] == ["Presence"]
+    readonly = await hass_ws_client(hass, access_token=hass_read_only_access_token)
+    await readonly.send_json(
+        {"id": 1, "type": "modes_plus/create_group", "name": "Forbidden"}
+    )
+    denied = await readonly.receive_json()
+    assert not denied["success"]
+    assert "Forbidden" not in manager.groups.names
     await hass.async_block_till_done()
     async_unregister_frontend(hass)
     assert "ha-plus-modes" not in hass.data["frontend_panels"]
@@ -106,3 +124,32 @@ async def test_recursive_mode_target_is_rejected_without_deadlock(hass):
     manager = ModeManager(hass)
     with pytest.raises(HomeAssistantError, match="another mode"):
         await manager._send(target.entity_id, {"state": "on"}, None)
+
+
+async def test_concurrent_entry_startup_uses_one_shared_manager(hass):
+    import asyncio
+
+    entries = [entry("Night", 10), entry("Shabbat", 50), entry("Missile Alert", 100)]
+    for mode in entries:
+        mode.add_to_hass(hass)
+    with (
+        patch(
+            "custom_components.modes_plus.async_register_frontend", new=AsyncMock()
+        ) as register,
+        patch("homeassistant.setup.async_process_deps_reqs", return_value=True),
+    ):
+        assert all(
+            await asyncio.gather(
+                *(hass.config_entries.async_setup(mode.entry_id) for mode in entries)
+            )
+        )
+        await hass.async_block_till_done()
+    manager = hass.data["modes_plus"]
+    assert set(manager.modes) == {mode.entry_id for mode in entries}
+    register.assert_awaited_once()
+    states = [
+        state
+        for state in hass.states.async_all("switch")
+        if state.attributes.get("mode_id") in manager.modes
+    ]
+    assert len(states) == 3

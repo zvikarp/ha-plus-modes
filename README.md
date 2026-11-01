@@ -17,21 +17,22 @@ This is a custom repository installation; the integration is not yet listed in t
 1. Copy `custom_components/modes_plus` into your Home Assistant configuration's `custom_components` directory.
 2. Restart Home Assistant (2025.1 or later).
 3. Open **Settings → Devices & services → Add integration → HA Plus Modes**.
-4. Name the mode and set its priority. Leave **Exclusive group** empty for modes that coexist. Give Home and Away the same group, such as `presence`, to make them mutually exclusive.
+4. Name the mode and set its priority. Select an existing **Group**, choose **Create a new group…**, or choose **Independent mode** to preserve an ungrouped mode. Home and Away belong to the same group, such as Presence; Shabbat and Missile Alert belong to different groups so they can overlap.
 5. Use **Add or replace a light or switch**, choose the entity, power state, and optional brightness. Repeat for each device, then choose **Save mode**.
-6. Open **HA Plus Modes** in the sidebar. Add further modes through Devices & services. Use each entry's **Configure** action to edit it.
+6. Open **HA Plus Modes** in the sidebar. Choose **Group → Mode → Duration**, then **Apply**. Choose **None · normal behavior** to clear that group. Add further modes through Devices & services; use each entry's **Configure** action to edit it. You can also create groups directly in the panel.
 
 No cloud account, container, separate backend, or YAML is needed to create modes. Schedules and external alert sources remain normal Home Assistant automations.
 
 ## Your household
 
-| Mode | Priority | Example |
-| --- | ---: | --- |
-| Night | 10 | Hallway lighting at 10%; `bedroom_brightness` behavior value 15 |
-| Shabbat | 50 | Your explicitly selected Shabbat lighting and switches |
-| Missile Alert | 100 | Shelter lighting on at full brightness |
+| Group | Mode | Priority | Example |
+| --- | --- | ---: | --- |
+| Presence | Home / Away | 10 | One presence setting at a time |
+| Daily rhythm | Day / Night | 10 | Night sets hallway lighting to 10% and `bedroom_brightness` to 15 |
+| Calendar | Shabbat | 50 | Your explicitly selected Shabbat lighting and switches |
+| Safety | Missile Alert | 100 | Shelter lighting on at full brightness |
 
-Modes stay active underneath higher-priority modes. Ending Missile Alert immediately reevaluates the settings of the modes still active. If Night ended during the alert, it does not come back. Same-priority conflicts use the stable mode ID as a deterministic tie breaker; use different priorities when order matters.
+**Within a group, selecting a mode replaces its previous selection. Across groups, modes stay active underneath higher-priority modes.** Put Shabbat and Missile Alert in different groups to get automatic return to Shabbat after the alert. Ending Missile Alert immediately reevaluates the settings of the modes still active. If Night ended during the alert, it does not come back. Same-priority conflicts use the stable mode ID as a deterministic tie breaker; use different priorities when order matters.
 
 **Device ownership is per entity:** the highest-priority mode mentioning a light or switch owns that device's complete configured effect. Unspecified devices remain controlled by other modes. Behavior values resolve independently per key. Brightness 0 in the form means “unspecified,” not “off.”
 
@@ -75,12 +76,18 @@ The card is registered automatically, like HA Plus Plant Care. Find **HA Plus Mo
 ```yaml
 type: custom:modes-plus-card
 title: Home modes
-# Optional: show only these mode IDs
+# Optional: include the groups containing these mode IDs
 # modes:
 #   - YOUR_MODE_ID
 ```
 
-The sidebar shows active modes, who started them, expiration times, overridden settings, effective settings, device errors with a retry action, and the last 30 requested changes. Both surfaces use HA components and theme variables, including light/dark mode, with responsive layouts and keyboard controls.
+The sidebar and card connect each group heading to its current mode and show alternative modes as inactive chips. The selection controls use themed, keyboard-operable dropdowns; buttons are rounded and refresh is an icon-only button with an accessible label. The sidebar icon is our own monochrome vector logo, colored by HA's active/inactive theme states.
+
+The panel also shows activation sources, expiration times, overridden settings, effective settings, device errors with retry, and the last 30 requested changes. A card filtered by mode IDs includes the whole matching group so it cannot hide that group's actual active mode.
+
+### Existing installations
+
+Existing free-text group names are adopted automatically into the dropdown. Ungrouped modes remain independent, each with its own selection scope; their identities, switches, active states, deadlines, and device baselines are preserved. The existing `activate`, `deactivate`, and switch actions remain compatible with automations. No config-entry version migration or destructive rewrite is required; group names are stored separately in HA storage. Rolling back leaves original mode entries readable; newly created empty groups remain in their separate storage file and are ignored by older versions.
 
 ## State, manual changes, and failures
 
@@ -111,3 +118,11 @@ npm test
 ```
 
 Tests cover overlapping Shabbat/Night/alert modes, stable ties, manual changes, exclusive groups, timers, restart recovery, service failures, permissions, removal, native forms, and setup/unload behavior.
+
+## Releases
+
+Like Plant Care, releases are manually selected through **Actions → Release → Run workflow** on `main`. Choose patch, minor, or major. If the source version is already ahead of the latest stable release, that prepared version is released first; otherwise both the manifest and project versions are bumped together.
+
+The release workflow first runs the same CI checks as pull requests, then commits any version bump, creates the tag and GitHub Release with generated notes, and attaches `modes_plus.zip`. The archive contains the integration files at its root and excludes Python caches. The frontend resource URL follows the manifest version automatically. Publishing a release manually also runs CI and attaches the archive from that release's tag; a mismatched tag/version is rejected.
+
+Install the release archive by extracting its contents into `custom_components/modes_plus`. Source-based HACS custom-repository installation remains available. No release is published merely by opening or merging a pull request; run the manual workflow when ready.

@@ -1,10 +1,17 @@
 {
   "domain": "modes_plus",
   "name": "HA Plus Modes",
-  "version": "0.1.0",
-  "codeowners": ["@zvikarp"],
+  "version": "0.2.0",
+  "codeowners": [
+    "@zvikarp"
+  ],
   "config_flow": true,
-  "dependencies": ["frontend", "http", "panel_custom", "websocket_api"],
+  "dependencies": [
+    "frontend",
+    "http",
+    "panel_custom",
+    "websocket_api"
+  ],
   "documentation": "https://github.com/zvikarp/ha-plus-modes",
   "integration_type": "service",
   "iot_class": "local_push",

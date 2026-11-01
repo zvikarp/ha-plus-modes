@@ -30,3 +30,30 @@ deactivate:
 retry:
   name: Retry failed effects
   description: Retry pending device changes and restorations.
+select:
+  name: Select group mode
+  description: Select a mode and duration for a group, or leave mode ID empty to clear it. Existing mode switches remain available for automations.
+  fields:
+    group:
+      name: Group
+      selector:
+        text:
+    mode_id:
+      name: Mode ID
+      description: Empty means no active mode in the selected group.
+      selector:
+        text:
+    standalone_mode_id:
+      name: Independent mode ID
+      description: Use only when selecting or clearing an independent mode with no group.
+      selector:
+        text:
+    duration:
+      name: Duration
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 525600
+          mode: box
+          unit_of_measurement: min
