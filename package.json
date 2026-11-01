@@ -1,0 +1,7 @@
+{
+  "name": "ha-plus-modes-ui-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {"test": "node --test tests/frontend.test.js"},
+  "devDependencies": {"linkedom": "0.18.12"}
+}

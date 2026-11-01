@@ -1,0 +1,32 @@
+activate:
+  name: Activate mode
+  description: Activate a mode. Higher priorities override conflicting settings without ending underlying modes.
+  fields:
+    mode_id:
+      name: Mode ID
+      description: Copy the mode_id attribute from the mode switch or status sensor.
+      required: true
+      selector:
+        text:
+    duration:
+      name: Duration
+      description: Minutes until automatic deactivation. Zero means until explicitly ended.
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 525600
+          mode: box
+          unit_of_measurement: min
+deactivate:
+  name: Deactivate mode
+  description: End a mode and apply the settings of remaining active modes.
+  fields:
+    mode_id:
+      name: Mode ID
+      required: true
+      selector:
+        text:
+retry:
+  name: Retry failed effects
+  description: Retry pending device changes and restorations.

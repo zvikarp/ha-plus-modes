@@ -1,0 +1,105 @@
+{
+  "title": "HA Plus Modes",
+  "config": {
+    "step": {
+      "user": {
+        "title": "HA Plus Modes",
+        "description": "Create a household mode. Higher priorities override conflicting settings. Leave the group empty to let this mode coexist with others. Modes sharing a group replace each other.",
+        "data": {
+          "name": "Name",
+          "priority": "Priority (higher wins)",
+          "group": "Exclusive group (optional)",
+          "icon": "Icon"
+        }
+      },
+      "settings": {
+        "title": "Mode settings",
+        "description": "Add lights, switches, or behavior values. Adding the same setting again replaces its definition. You can also finish without effects and use the mode as an automation condition.",
+        "menu_options": {
+          "device": "Add or replace a light or switch",
+          "behavior": "Add or replace a behavior value",
+          "remove": "Remove a setting",
+          "finish": "Save mode"
+        }
+      },
+      "device": {
+        "title": "Light or switch",
+        "description": "Choose what this device should do while the mode is in control. A higher-priority mode can temporarily override it. Brightness 0 leaves brightness unspecified; use Off to turn the device off.",
+        "data": {
+          "entity_id": "Device",
+          "state": "Power",
+          "brightness": "Brightness (lights only)"
+        }
+      },
+      "behavior": {
+        "title": "Behavior value",
+        "description": "Expose a numeric value (0\u2013100) for your existing automations, such as bedroom_brightness = 15. Connect your button automation to effective_values on a mode status sensor. This does not change a button automatically.",
+        "data": {
+          "key": "Behavior name",
+          "value": "Value"
+        }
+      },
+      "remove": {
+        "title": "Remove a setting",
+        "data": {
+          "setting": "Setting"
+        }
+      }
+    },
+    "error": {
+      "invalid_definition": "Enter a name, valid priority, and a nonempty behavior name.",
+      "invalid_effect": "Use a light or switch. Brightness is only available for lights set to On. Mode switches cannot be managed as effects."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "HA Plus Modes",
+        "description": "Create a household mode. Higher priorities override conflicting settings. Leave the group empty to let this mode coexist with others. Modes sharing a group replace each other.",
+        "data": {
+          "name": "Name",
+          "priority": "Priority (higher wins)",
+          "group": "Exclusive group (optional)",
+          "icon": "Icon"
+        }
+      },
+      "settings": {
+        "title": "Mode settings",
+        "description": "Add lights, switches, or behavior values. Adding the same setting again replaces its definition. You can also finish without effects and use the mode as an automation condition.",
+        "menu_options": {
+          "device": "Add or replace a light or switch",
+          "behavior": "Add or replace a behavior value",
+          "remove": "Remove a setting",
+          "finish": "Save mode"
+        }
+      },
+      "device": {
+        "title": "Light or switch",
+        "description": "Choose what this device should do while the mode is in control. A higher-priority mode can temporarily override it. Brightness 0 leaves brightness unspecified; use Off to turn the device off.",
+        "data": {
+          "entity_id": "Device",
+          "state": "Power",
+          "brightness": "Brightness (lights only)"
+        }
+      },
+      "behavior": {
+        "title": "Behavior value",
+        "description": "Expose a numeric value (0\u2013100) for your existing automations, such as bedroom_brightness = 15. Connect your button automation to effective_values on a mode status sensor. This does not change a button automatically.",
+        "data": {
+          "key": "Behavior name",
+          "value": "Value"
+        }
+      },
+      "remove": {
+        "title": "Remove a setting",
+        "data": {
+          "setting": "Setting"
+        }
+      }
+    },
+    "error": {
+      "invalid_definition": "Enter a name, valid priority, and a nonempty behavior name.",
+      "invalid_effect": "Use a light or switch. Brightness is only available for lights set to On. Mode switches cannot be managed as effects."
+    }
+  }
+}
