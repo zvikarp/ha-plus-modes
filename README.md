@@ -1,5 +1,7 @@
 # HA Plus Modes
 
+<img src="./custom_components/modes_plus/brand/icon.png" alt="HA Plus Modes" width="140">
+
 Local household modes for Home Assistant: Shabbat, Night, Guests, Away, and temporary emergency overrides. Uses Home Assistant's native setup forms, theme, sidebar, entities, and automations.
 
 ## Install

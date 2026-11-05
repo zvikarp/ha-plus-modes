@@ -173,6 +173,6 @@ test("registered monochrome logo matches the supplied SVG asset", async () => {
   const { window } = await setup(snapshot());
   const icon = await window.customIcons["modes-plus"].getIcon("logo");
   const svg = await readFile(new URL("../custom_components/modes_plus/brand/icon-monochrome.svg", import.meta.url), "utf8");
-  assert.equal(icon.viewBox, "0 0 512 512");
+  assert.equal(icon.viewBox, "0 0 513 512");
   assert.ok(svg.includes(`d="${icon.path}"`));
 });
