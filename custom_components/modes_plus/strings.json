@@ -1,9 +1,9 @@
 {
-  "title": "HA Plus Modes",
+  "title": "HA+ Modes",
   "config": {
     "step": {
       "user": {
-        "title": "HA Plus Modes",
+        "title": "HA+ Modes",
         "description": "Choose a group for mutually exclusive settings, or keep this mode independent so it can coexist with others. Create groups from the dropdown. Higher priorities override conflicting device settings across groups.",
         "data": {
           "name": "Name",
@@ -62,7 +62,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "HA Plus Modes",
+        "title": "HA+ Modes",
         "description": "Choose a group for mutually exclusive settings, or keep this mode independent so it can coexist with others. Create groups from the dropdown. Higher priorities override conflicting device settings across groups.",
         "data": {
           "name": "Name",

@@ -1,4 +1,4 @@
-"""HA Plus Modes integration lifecycle and automation actions."""
+"""HA+ Modes integration lifecycle and automation actions."""
 
 import asyncio
 import math

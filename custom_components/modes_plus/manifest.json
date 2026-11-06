@@ -1,6 +1,6 @@
 {
   "domain": "modes_plus",
-  "name": "HA Plus Modes",
+  "name": "HA+ Modes",
   "version": "0.2.0",
   "codeowners": [
     "@zvikarp"

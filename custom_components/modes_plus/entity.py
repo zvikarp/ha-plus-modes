@@ -18,7 +18,7 @@ class ModeEntity(Entity):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
             name=entry.title,
-            manufacturer="HA Plus",
+            manufacturer="HA+",
             model="Household mode",
         )
 

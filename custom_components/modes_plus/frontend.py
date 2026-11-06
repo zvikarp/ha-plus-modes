@@ -18,7 +18,7 @@ PATH = "/modes_plus/modes-plus.js"
 async def snapshot(hass, connection, msg):
     manager = hass.data.get(DOMAIN)
     if manager is None:
-        connection.send_error(msg["id"], "not_loaded", "HA Plus Modes is not loaded")
+        connection.send_error(msg["id"], "not_loaded", "HA+ Modes is not loaded")
         return
     # Check entity read access before exposing device settings to restricted users.
     from homeassistant.auth.permissions.const import POLICY_READ
@@ -55,7 +55,7 @@ async def snapshot(hass, connection, msg):
 async def create_group(hass, connection, msg):
     manager = hass.data.get(DOMAIN)
     if manager is None:
-        connection.send_error(msg["id"], "not_loaded", "HA Plus Modes is not loaded")
+        connection.send_error(msg["id"], "not_loaded", "HA+ Modes is not loaded")
         return
     try:
         manager.groups = await async_get_groups(hass)
@@ -94,7 +94,7 @@ async def async_register_frontend(hass, manager):
         hass,
         webcomponent_name="modes-plus-panel",
         frontend_url_path="ha-plus-modes",
-        sidebar_title="HA Plus Modes",
+        sidebar_title="HA+ Modes",
         sidebar_icon="modes-plus:logo",
         module_url=url,
         require_admin=False,

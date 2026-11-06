@@ -1,6 +1,6 @@
-# HA Plus Modes
+# HA+ Modes
 
-<img src="./custom_components/modes_plus/brand/icon.png" alt="HA Plus Modes" width="140">
+<img src="./custom_components/modes_plus/brand/icon.png" alt="HA+ Modes" width="140">
 
 Local household modes for Home Assistant: Shabbat, Night, Guests, Away, and temporary emergency overrides. Uses Home Assistant's native setup forms, theme, sidebar, entities, and automations.
 
@@ -9,8 +9,8 @@ Local household modes for Home Assistant: Shabbat, Night, Guests, Away, and temp
 ### HACS custom repository
 
 1. In HACS, open **Custom repositories** and add `https://github.com/zvikarp/ha-plus-modes` with the **Integration** type.
-2. Install **HA Plus Modes** and restart Home Assistant.
-3. Open **Settings → Devices & services → Add integration → HA Plus Modes**.
+2. Install **HA+ Modes** and restart Home Assistant.
+3. Open **Settings → Devices & services → Add integration → HA+ Modes**.
 
 This is a custom repository installation; the integration is not yet listed in the default HACS catalog.
 
@@ -18,10 +18,10 @@ This is a custom repository installation; the integration is not yet listed in t
 
 1. Copy `custom_components/modes_plus` into your Home Assistant configuration's `custom_components` directory.
 2. Restart Home Assistant (2025.1 or later).
-3. Open **Settings → Devices & services → Add integration → HA Plus Modes**.
+3. Open **Settings → Devices & services → Add integration → HA+ Modes**.
 4. Name the mode and set its priority. Select an existing **Group**, choose **Create a new group…**, or choose **Independent mode** to preserve an ungrouped mode. Home and Away belong to the same group, such as Presence; Shabbat and Missile Alert belong to different groups so they can overlap.
 5. Use **Add or replace a light or switch**, choose the entity, power state, and optional brightness. Repeat for each device, then choose **Save mode**.
-6. Open **HA Plus Modes** in the sidebar. Choose **Group → Mode → Duration**, then **Apply**. Choose **None · normal behavior** to clear that group. Add further modes through Devices & services; use each entry's **Configure** action to edit it. You can also create groups directly in the panel.
+6. Open **HA+ Modes** in the sidebar. Choose **Group → Mode → Duration**, then **Apply**. Choose **None · normal behavior** to clear that group. Add further modes through Devices & services; use each entry's **Configure** action to edit it. You can also create groups directly in the panel.
 
 No cloud account, container, separate backend, or YAML is needed to create modes. Schedules and external alert sources remain normal Home Assistant automations.
 
@@ -42,7 +42,7 @@ No cloud account, container, separate backend, or YAML is needed to create modes
 
 Every mode has an **Active** switch and a **Status** sensor grouped under its device. Use standard **Switch: Turn on/off** actions with these entities. Trigger the Shabbat switch from your existing Shabbat-time automation; trigger Missile Alert from your existing alert automation. The integration neither detects alerts nor calculates religious times.
 
-For timed activation, use the **HA Plus Modes: Activate mode** action. Copy `mode_id` from the switch or status sensor's attributes:
+For timed activation, use the **HA+ Modes: Activate mode** action. Copy `mode_id` from the switch or status sensor's attributes:
 
 ```yaml
 action: modes_plus.activate
@@ -73,7 +73,7 @@ For other actions, trigger normal HA automations on mode switches. Arbitrary scr
 
 ## Dashboard
 
-The card is registered automatically, like HA Plus Plant Care. Find **HA Plus Modes** in the card picker, or add a manual card:
+The card is registered automatically, like HA+ Plant Care. Find **HA+ Modes** in the card picker, or add a manual card:
 
 ```yaml
 type: custom:modes-plus-card
