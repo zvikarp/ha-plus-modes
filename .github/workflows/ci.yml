@@ -26,4 +26,5 @@ jobs:
           node-version: '24'
       - run: node --check custom_components/modes_plus/frontend/modes-plus.js
       - run: npm ci --ignore-scripts
+      - run: npm run check:build
       - run: npm test
