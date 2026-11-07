@@ -128,3 +128,20 @@ Like Plant Care, releases are manually selected through **Actions â†’ Release â†
 The release workflow first runs the same CI checks as pull requests, then commits any version bump, creates the tag and GitHub Release with generated notes, and attaches `modes_plus.zip`. The archive contains the integration files at its root and excludes Python caches. The frontend resource URL follows the manifest version automatically. Publishing a release manually also runs CI and attaches the archive from that release's tag; a mismatched tag/version is rejected.
 
 Install the release archive by extracting its contents into `custom_components/modes_plus`. Source-based HACS custom-repository installation remains available. No release is published merely by opening or merging a pull request; run the manual workflow when ready.
+
+## Shared UI development
+
+Edit `src/modes-plus.js` and run `npm ci` followed by `npm run build`
+from the repository root. Commit the generated frontend file with its source.
+The integration bundles a pinned release of
+[`@ha-plus/ui`](https://github.com/zvikarp/ha-plus-packages) so HACS installs
+remain self-contained. `npm run check:build` detects generated-file drift.
+
+Upgrade the UI dependency by installing a versioned tarball asset from the
+packages repository's releases, rebuilding and running the frontend tests.
+Commit `package.json`, `package-lock.json` and the rebuilt frontend together.
+
+UI styling belongs entirely to `@ha-plus/ui`. Use its `appStyles` stylesheet
+and shared presentation classes. Add reusable styles to the package when
+needed, then upgrade the pinned dependency. Keep app source free of CSS rules,
+inline styles and style-property writes.

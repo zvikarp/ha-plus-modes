@@ -176,3 +176,19 @@ test("registered monochrome logo matches the supplied SVG asset", async () => {
   assert.equal(icon.viewBox, "0 0 513 512");
   assert.ok(svg.includes(`d="${icon.path}"`));
 });
+
+test("panel and compact card use only the shared app stylesheet", async () => {
+  const { appStyles } = await import("@ha-plus/ui");
+  const { window, panel, hass } = await setup(snapshot());
+  const card = window.document.createElement("modes-plus-card");
+  window.document.body.append(card);
+  card.hass = hass;
+  await tick();
+  for (const view of [panel, card]) {
+    assert.equal(view.shadowRoot.querySelectorAll("style").length, 1);
+    assert.equal(view.shadowRoot.querySelector("style").textContent, appStyles);
+    assert.equal(view.shadowRoot.querySelector("[style]"), null);
+    assert.ok(view.shadowRoot.querySelector(".ha-plus-form-grid"));
+    assert.ok(view.shadowRoot.querySelector(".ha-plus-card-grid"));
+  }
+});
