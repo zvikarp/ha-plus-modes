@@ -1,4 +1,4 @@
-import { themeStyles, el, icon, button, textField, dropdown, panelHeader, notice } from "@ha-plus/ui";
+import { appStyles, el, icon, button, textField, dropdown, panelHeader, notice } from "@ha-plus/ui";
 
 /* HA+ Modes uses HA components and theme tokens, with no runtime dependencies. */
 const DOMAIN = "modes_plus";
@@ -9,37 +9,6 @@ window.customIcons["modes-plus"] = {
   getIcon: async (name) => name === "logo" ? { path: LOGO_PATH, viewBox: "0 0 513 512" } : undefined,
 };
 
-const STYLES = `${themeStyles}
-  h2 { font-size:18px; font-weight:500; margin:0 0 16px; }
-  h3 { font-size:16px; margin:0; }
-  p { line-height:1.5; }
-  .muted { color:var(--secondary-text-color); font-size:14px; }
-  ha-card { padding:20px; margin-bottom:20px; }
-  .row, .chips, .actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-  .row h3 { flex:1; }
-  .chips { margin-top:12px; }
-  .chip { display:inline-flex; align-items:center; gap:6px; max-width:100%; padding:7px 12px; border-radius:999px; background:var(--secondary-background-color); border:1px solid var(--divider-color); font-size:13px; overflow-wrap:anywhere; }
-  .chip.active { color:var(--primary-color); background:var(--primary-color-light,var(--secondary-background-color)); border-color:var(--primary-color); }
-  .chip ha-icon { --mdc-icon-size:18px; }
-  .controls { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)) auto; align-items:end; gap:12px; }
-  .group { border-inline-start:4px solid var(--divider-color); }
-  .group.has-active { border-inline-start-color:var(--primary-color); }
-  .group-state { margin:12px 0 4px; font-size:20px; font-weight:500; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr)); gap:16px; }
-  .grid ha-card { margin:0; }
-  section { margin-bottom:24px; }
-  details { margin-top:16px; }
-  summary { cursor:pointer; padding:8px 0; }
-  .effect { padding:12px 0; border-bottom:1px solid var(--divider-color); overflow-wrap:anywhere; }
-  .effect:last-child { border:0; }
-  .create-group { margin:16px 0; }
-  .create-group form { display:flex; align-items:end; gap:12px; flex-wrap:wrap; margin-top:12px; }
-  .compact { padding:16px; }
-  .compact .controls { grid-template-columns:1fr; }
-  .compact .grid { display:block; }
-  .compact .group { margin-bottom:12px; padding:12px; }
-  @media(max-width:700px) { .controls { grid-template-columns:1fr 1fr; } .controls .field:first-child { grid-column:1 / -1; } .controls .primary { grid-column:1 / -1; } }
-`;
 const DURATIONS = [[0, "Until cleared"], [30, "30 minutes"], [60, "1 hour"], [120, "2 hours"], [480, "8 hours"]];
 function when(value) { return new Date(value).toLocaleString(); }
 
@@ -135,7 +104,7 @@ class ModesView extends HTMLElement {
     });
   }
   _controls(groups) {
-    if (!groups.length) return el("p", "Create a mode in Devices & services to get started.", "muted");
+    if (!groups.length) return el("p", "Create a mode in Devices & services to get started.", "ha-plus-muted");
     let group = groups.find(item => item.key === this._selection.group);
     if (!group) {
       group = groups[0];
@@ -143,7 +112,7 @@ class ModesView extends HTMLElement {
       this._selection.mode = group.members.find(mode => mode.active)?.id || "";
     }
     if (!group.members.some(mode => mode.id === this._selection.mode)) this._selection.mode = "";
-    const form = el("div", undefined, "controls");
+    const form = el("div", undefined, "controls ha-plus-form-grid");
     form.append(
       dropdown("group", "Group", groups.map(item => ({ value: item.key, label: item.name })), group.key, value => this._choose("group", value), this._busy),
       dropdown("mode", "Mode", [{ value: "", label: "None · normal behavior" }, ...group.members.map(mode => ({ value: mode.id, label: mode.name }))], this._selection.mode, value => this._choose("mode", value), this._busy || !group.members.length),
@@ -161,36 +130,36 @@ class ModesView extends HTMLElement {
       detail.append(el("p", `${name}: ${effect.state}${effect.brightness ? ` · brightness ${Math.round(effect.brightness / 255 * 100)}%` : ""}${mode.active && owner && owner.id !== mode.id ? ` · overridden by ${owner.name}` : ""}`));
     }
     for (const [key, value] of Object.entries(mode.values)) detail.append(el("p", `${key}: ${value}`));
-    if (!Object.keys(mode.effects).length && !Object.keys(mode.values).length) detail.append(el("p", "No managed settings. Use this mode as an automation condition.", "muted"));
+    if (!Object.keys(mode.effects).length && !Object.keys(mode.values).length) detail.append(el("p", "No managed settings. Use this mode as an automation condition.", "ha-plus-muted"));
     return detail;
   }
   _groupCard(group) {
     const active = group.members.find(mode => mode.active);
-    const card = el("ha-card", undefined, `group${active ? " has-active" : ""}`);
-    const row = el("div", undefined, "row");
+    const card = el("ha-card", undefined, `group ha-plus-group ha-plus-padded-card${active ? " active" : ""}`);
+    const row = el("div", undefined, "ha-plus-row");
     row.append(icon(active?.icon || "mdi:layers-outline"), el("h3", group.name));
-    card.append(row, el("p", active?.name || "Normal behavior", "group-state"));
+    card.append(row, el("p", active?.name || "Normal behavior", "group-state ha-plus-value"));
     if (active) {
-      card.append(el("p", `Started ${when(active.active.since)} · ${active.active.source}`, "muted"));
-      if (active.active.until) card.append(el("p", `Ends ${when(active.active.until)}`, "muted"));
+      card.append(el("p", `Started ${when(active.active.since)} · ${active.active.source}`, "ha-plus-muted"));
+      if (active.active.until) card.append(el("p", `Ends ${when(active.active.until)}`, "ha-plus-muted"));
       const owned = [...Object.values(this._data.effects), ...Object.values(this._data.values)].filter(item => item.mode_id === active.id).length;
       const total = Object.keys(active.effects).length + Object.keys(active.values).length;
-      card.append(el("p", `${owned} effective · ${total - owned} overridden`, "muted"));
+      card.append(el("p", `${owned} effective · ${total - owned} overridden`, "ha-plus-muted"));
     }
-    const chips = el("div", undefined, "chips");
+    const chips = el("div", undefined, "ha-plus-chips");
     for (const mode of group.members) {
-      const chip = el("span", undefined, `chip${mode.active ? " active" : ""}`);
+      const chip = el("span", undefined, `chip ha-plus-chip${mode.active ? " active" : ""}`);
       chip.append(icon(mode.icon || "mdi:home-switch"), el("span", mode.name));
       chip.setAttribute("aria-label", `${mode.name}: ${mode.active ? "active" : "inactive"}`);
       chips.append(chip);
     }
     card.append(chips);
-    if (!group.members.length) card.append(el("p", "No modes yet. Choose this group when adding a mode in Devices & services.", "muted"));
+    if (!group.members.length) card.append(el("p", "No modes yet. Choose this group when adding a mode in Devices & services.", "ha-plus-muted"));
     for (const mode of group.members) card.append(this._modeDetails(mode));
     return card;
   }
   _newGroup() {
-    const detail = el("details", undefined, "create-group");
+    const detail = el("details", undefined, "create-group ha-plus-create");
     detail.append(el("summary", "Create group"));
     const form = el("form");
     const { field, input } = textField("Group name", {
@@ -216,9 +185,9 @@ class ModesView extends HTMLElement {
   }
   _render() {
     const focused = this.shadowRoot.activeElement?.dataset.control;
-    this.shadowRoot.replaceChildren(el("style", STYLES));
+    this.shadowRoot.replaceChildren(el("style", appStyles));
     const compact = this.localName === "modes-plus-card";
-    const root = el(compact ? "ha-card" : "div");
+    const root = el(compact ? "ha-card" : "div", undefined, compact ? "ha-plus-compact" : "");
     if (!compact) {
       const refresh = button(undefined, () => this._refresh(), this._loading, "icon-button");
       refresh.setAttribute("aria-label", "Refresh modes");
@@ -226,7 +195,7 @@ class ModesView extends HTMLElement {
       refresh.append(icon("mdi:refresh"));
       root.append(panelHeader("HA+ Modes", { hass:this._hass, narrow:this.narrow, actions:[refresh] }));
     }
-    const main = el("main", undefined, compact ? "compact" : "ha-plus-content");
+    const main = el("main", undefined, compact ? "ha-plus-compact-content" : "ha-plus-content");
     root.append(main);
     if (compact) main.append(el("h2", this._config?.title || "Home modes"));
     if (this._error) {
@@ -242,16 +211,16 @@ class ModesView extends HTMLElement {
     let modes = [...this._data.modes].sort((a, b) => b.priority - a.priority || a.name.localeCompare(b.name));
     const groups = this._groups(modes);
     this._currentGroups = groups;
-    const controls = compact ? el("section") : el("ha-card");
+    const controls = compact ? el("section") : el("ha-card", undefined, "ha-plus-padded-card");
     if (!compact) controls.append(el("h2", "Choose a household setting"));
     controls.append(this._controls(groups));
     if (!compact) {
-      controls.append(el("p", "Each group has one selected mode. Different groups can stay active together; higher priorities override conflicting settings. Choose None to clear a group.", "muted"));
+      controls.append(el("p", "Each group has one selected mode. Different groups can stay active together; higher priorities override conflicting settings. Choose None to clear a group.", "ha-plus-muted"));
       if (this._hass.user?.is_admin) controls.append(this._newGroup());
     }
     main.append(controls);
     if (!compact) main.append(el("h2", "Your groups"));
-    const grid = el("section", undefined, "grid");
+    const grid = el("section", undefined, "grid ha-plus-card-grid");
     for (const group of groups) grid.append(this._groupCard(group));
     main.append(grid);
     const errors = Object.entries(this._data.errors);
@@ -266,21 +235,21 @@ class ModesView extends HTMLElement {
       main.append(box);
     }
     if (!compact) {
-      const explain = el("ha-card");
+      const explain = el("ha-card", undefined, "ha-plus-padded-card");
       explain.append(el("h2", "Effective settings"));
       for (const [key, item] of Object.entries(this._data.effects)) {
         const owner = this._data.modes.find(mode => mode.id === item.mode_id);
-        explain.append(el("div", `${this._hass.states[key]?.attributes.friendly_name || key} → ${item.desired.state}${item.desired.brightness ? ` · ${Math.round(item.desired.brightness / 255 * 100)}%` : ""} · ${owner?.group ? owner.group + " / " : ""}${owner?.name || item.mode_id}`, "effect"));
+        explain.append(el("div", `${this._hass.states[key]?.attributes.friendly_name || key} → ${item.desired.state}${item.desired.brightness ? ` · ${Math.round(item.desired.brightness / 255 * 100)}%` : ""} · ${owner?.group ? owner.group + " / " : ""}${owner?.name || item.mode_id}`, "ha-plus-detail-row"));
       }
       for (const [key, item] of Object.entries(this._data.values)) {
         const owner = this._data.modes.find(mode => mode.id === item.mode_id);
-        explain.append(el("div", `${key} → ${item.value} · ${owner?.group ? owner.group + " / " : ""}${owner?.name}`, "effect"));
+        explain.append(el("div", `${key} → ${item.value} · ${owner?.group ? owner.group + " / " : ""}${owner?.name}`, "ha-plus-detail-row"));
       }
-      if (!Object.keys(this._data.effects).length && !Object.keys(this._data.values).length) explain.append(el("p", "No settings are currently controlled by modes.", "muted"));
+      if (!Object.keys(this._data.effects).length && !Object.keys(this._data.values).length) explain.append(el("p", "No settings are currently controlled by modes.", "ha-plus-muted"));
       main.append(explain);
       const history = el("details");
       history.append(el("summary", "Recent changes"));
-      for (const item of this._data.history) history.append(el("p", `${item.mode} ${item.active ? "selected" : "cleared"} · ${when(item.at)}`, "muted"));
+      for (const item of this._data.history) history.append(el("p", `${item.mode} ${item.active ? "selected" : "cleared"} · ${when(item.at)}`, "ha-plus-muted"));
       main.append(history);
       if (this._hass.user?.is_admin) {
         const link = el("a", "Add or configure modes in Devices & services");

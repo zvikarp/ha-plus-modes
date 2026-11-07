@@ -1,6 +1,5 @@
 (() => {
-  // node_modules/@ha-plus/ui/src/index.js
-  /*! @ha-plus/ui v0.1.0 | MIT | Copyright (c) 2026 HA+ contributors | https://github.com/zvikarp/ha-plus-packages/blob/main/LICENSE */
+  // node_modules/@ha-plus/ui/src/styles.js
   var themeStyles = `
   :host { display:block; color:var(--primary-text-color,#212121); font-family:var(--primary-font-family,var(--paper-font-body1_-_font-family,Roboto,sans-serif)); }
   *, *::before, *::after { box-sizing:border-box; }
@@ -37,6 +36,398 @@
   dialog form { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:12px; margin-top:24px; }
   @media(max-width:700px) { .ha-plus-content { padding:16px; } .ha-plus-header h1 { font-size:18px; } }
 `;
+  var appStyles = `${themeStyles}
+  :host {
+    container-type: inline-size;
+  }
+
+  h2 {
+    font-size: 20px;
+    font-weight: 500;
+    margin: 0 0 16px;
+  }
+
+  h3 {
+    font-size: 16px;
+    margin: 0;
+  }
+
+  p {
+    line-height: 1.5;
+  }
+
+  section {
+    margin-bottom: 24px;
+  }
+
+  details {
+    margin-top: 16px;
+  }
+
+  summary {
+    cursor: pointer;
+    padding: 8px 0;
+  }
+
+  .ha-plus-muted,
+  .ha-plus-message {
+    color: var(--secondary-text-color, #727272);
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+
+  .ha-plus-message {
+    align-self: center;
+  }
+
+  .ha-plus-padded-card {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .ha-plus-row,
+  .ha-plus-chips,
+  .ha-plus-card-actions,
+  .ha-plus-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .ha-plus-row h3 {
+    flex: 1;
+  }
+
+  .ha-plus-chips {
+    margin-top: 12px;
+  }
+
+  .ha-plus-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: var(--secondary-background-color, #f5f5f5);
+    border: 1px solid var(--divider-color, #e0e0e0);
+    font-size: 13px;
+    overflow-wrap: anywhere;
+  }
+
+  .ha-plus-chip.active {
+    color: var(--primary-color, #03a9f4);
+    background: var(--primary-color-light, var(--secondary-background-color, #f5f5f5));
+    border-color: var(--primary-color, #03a9f4);
+  }
+
+  .ha-plus-chip ha-icon {
+    --mdc-icon-size: 18px;
+  }
+
+  .ha-plus-form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+    align-items: end;
+    gap: 12px;
+  }
+
+  .ha-plus-group {
+    border-inline-start: 4px solid var(--divider-color, #e0e0e0);
+  }
+
+  .ha-plus-group.active {
+    border-inline-start-color: var(--primary-color, #03a9f4);
+  }
+
+  .ha-plus-value {
+    margin: 12px 0 4px;
+    font-size: 20px;
+    font-weight: 500;
+  }
+
+  .ha-plus-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+    gap: 16px;
+  }
+
+  .ha-plus-card-grid > ha-card {
+    margin: 0;
+  }
+
+  .ha-plus-detail-row {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--divider-color, #e0e0e0);
+    overflow-wrap: anywhere;
+  }
+
+  .ha-plus-detail-row:last-child {
+    border: 0;
+  }
+
+  .ha-plus-create {
+    margin: 16px 0;
+  }
+
+  .ha-plus-create form {
+    display: flex;
+    align-items: end;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+
+  .ha-plus-compact-content {
+    padding: 16px;
+  }
+
+  .ha-plus-compact .ha-plus-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ha-plus-compact .ha-plus-card-grid {
+    display: block;
+  }
+
+  .ha-plus-compact .ha-plus-group {
+    margin-bottom: 12px;
+    padding: 12px;
+  }
+
+  .ha-plus-detail-card {
+    overflow: hidden;
+  }
+
+  .ha-plus-card-header {
+    display: grid;
+    align-items: center;
+    cursor: pointer;
+    gap: 16px;
+    grid-template-columns: 64px minmax(0, 1fr);
+    padding: 20px 20px 12px;
+  }
+
+  .ha-plus-card-header h2 {
+    line-height: 1.3;
+    margin-bottom: 4px;
+    overflow-wrap: anywhere;
+  }
+
+  .ha-plus-card-header:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .ha-plus-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--secondary-background-color, #f5f5f5);
+    border-radius: 50%;
+    height: 64px;
+    width: 64px;
+    overflow: hidden;
+  }
+
+  .ha-plus-avatar img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+  }
+
+  .ha-plus-avatar ha-icon {
+    color: var(--primary-color, #03a9f4);
+    --mdc-icon-size: 34px;
+  }
+
+  .ha-plus-status {
+    font-weight: 500;
+    text-transform: capitalize;
+    overflow-wrap: anywhere;
+  }
+
+  [data-tone=success] {
+    color: var(--success-color, #43a047);
+  }
+
+  [data-tone=warning] {
+    color: var(--warning-color, #ff9800);
+  }
+
+  [data-tone=error] {
+    color: var(--error-color, #db4437);
+  }
+
+  .ha-plus-description {
+    color: var(--secondary-text-color, #727272);
+    margin: 0;
+    padding: 0 20px 16px;
+    overflow-wrap: anywhere;
+  }
+
+  .ha-plus-stats {
+    display: grid;
+    gap: 1px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    background: var(--divider-color, #e0e0e0);
+    border-block: 1px solid var(--divider-color, #e0e0e0);
+  }
+
+  .ha-plus-stat {
+    display: grid;
+    align-items: center;
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 10px;
+    min-height: 64px;
+    padding: 10px 14px;
+    border: 0;
+    border-radius: 0;
+    background: var(--card-background-color, #fff);
+    color: var(--primary-text-color, #212121);
+    text-align: start;
+  }
+
+  .ha-plus-stat:hover {
+    background: var(--secondary-background-color, #f5f5f5);
+  }
+
+  .ha-plus-stat ha-icon {
+    color: var(--state-icon-color, #44739e);
+  }
+
+  .ha-plus-stat-label {
+    color: var(--secondary-text-color, #727272);
+    display: block;
+    font-size: 0.78rem;
+  }
+
+  .ha-plus-stat-value {
+    display: block;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ha-plus-card-actions {
+    padding: 16px 20px 20px;
+  }
+
+  .ha-plus-feedback {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    max-width: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  button.ha-plus-feedback.success {
+    background: var(--success-color, #43a047);
+    opacity: 1;
+    cursor: default;
+  }
+
+  .ha-plus-feedback.success::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: #fff6;
+    animation: ha-plus-splash 600ms ease-out forwards;
+  }
+
+  .ha-plus-feedback.success ha-icon {
+    animation: ha-plus-check-in 350ms ease-out;
+  }
+
+  .ha-plus-toolbar {
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .ha-plus-toolbar button[aria-pressed=true] {
+    background: var(--primary-color, #03a9f4);
+    color: var(--text-primary-color, #fff);
+  }
+
+  .ha-plus-table {
+    overflow-x: auto;
+    background: var(--card-background-color, #fff);
+    border: 1px solid var(--divider-color, #e0e0e0);
+    border-radius: var(--ha-card-border-radius, 12px);
+  }
+
+  .ha-plus-table table {
+    border-collapse: collapse;
+    width: 100%;
+    white-space: nowrap;
+  }
+
+  .ha-plus-table th,
+  .ha-plus-table td {
+    text-align: start;
+    padding: 12px;
+    border-bottom: 1px solid var(--divider-color, #e0e0e0);
+  }
+
+  .ha-plus-table input[type=checkbox] {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--primary-color, #03a9f4);
+    cursor: pointer;
+  }
+
+  .ha-plus-text-button {
+    background: transparent;
+    border: 0;
+    padding: 4px;
+    text-align: start;
+  }
+
+  @keyframes ha-plus-splash {
+    from { transform: scale(0); opacity: 1; }
+    to { transform: scale(2); opacity: 0; }
+  }
+
+  @keyframes ha-plus-check-in {
+    from { transform: scale(0.4); }
+    to { transform: scale(1); }
+  }
+
+  @media (max-width: 700px) {
+    .ha-plus-form-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .ha-plus-form-grid .field:first-child,
+    .ha-plus-form-grid .primary {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @container (max-width: 420px) {
+    .ha-plus-stats {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ha-plus-feedback.success::after,
+    .ha-plus-feedback.success ha-icon {
+      animation: none;
+    }
+
+    .ha-plus-feedback.success::after {
+      display: none;
+    }
+  }
+`;
+
+  // node_modules/@ha-plus/ui/src/index.js
+  /*! @ha-plus/ui v0.2.0 | MIT | Copyright (c) 2026 HA+ contributors | https://github.com/zvikarp/ha-plus-packages/blob/main/LICENSE */
   function el(tag, text, className) {
     const node = document.createElement(tag);
     if (text !== void 0) node.textContent = text;
@@ -155,37 +546,6 @@
   window.customIcons["modes-plus"] = {
     getIcon: async (name) => name === "logo" ? { path: LOGO_PATH, viewBox: "0 0 513 512" } : void 0
   };
-  var STYLES = `${themeStyles}
-  h2 { font-size:18px; font-weight:500; margin:0 0 16px; }
-  h3 { font-size:16px; margin:0; }
-  p { line-height:1.5; }
-  .muted { color:var(--secondary-text-color); font-size:14px; }
-  ha-card { padding:20px; margin-bottom:20px; }
-  .row, .chips, .actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-  .row h3 { flex:1; }
-  .chips { margin-top:12px; }
-  .chip { display:inline-flex; align-items:center; gap:6px; max-width:100%; padding:7px 12px; border-radius:999px; background:var(--secondary-background-color); border:1px solid var(--divider-color); font-size:13px; overflow-wrap:anywhere; }
-  .chip.active { color:var(--primary-color); background:var(--primary-color-light,var(--secondary-background-color)); border-color:var(--primary-color); }
-  .chip ha-icon { --mdc-icon-size:18px; }
-  .controls { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)) auto; align-items:end; gap:12px; }
-  .group { border-inline-start:4px solid var(--divider-color); }
-  .group.has-active { border-inline-start-color:var(--primary-color); }
-  .group-state { margin:12px 0 4px; font-size:20px; font-weight:500; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr)); gap:16px; }
-  .grid ha-card { margin:0; }
-  section { margin-bottom:24px; }
-  details { margin-top:16px; }
-  summary { cursor:pointer; padding:8px 0; }
-  .effect { padding:12px 0; border-bottom:1px solid var(--divider-color); overflow-wrap:anywhere; }
-  .effect:last-child { border:0; }
-  .create-group { margin:16px 0; }
-  .create-group form { display:flex; align-items:end; gap:12px; flex-wrap:wrap; margin-top:12px; }
-  .compact { padding:16px; }
-  .compact .controls { grid-template-columns:1fr; }
-  .compact .grid { display:block; }
-  .compact .group { margin-bottom:12px; padding:12px; }
-  @media(max-width:700px) { .controls { grid-template-columns:1fr 1fr; } .controls .field:first-child { grid-column:1 / -1; } .controls .primary { grid-column:1 / -1; } }
-`;
   var DURATIONS = [[0, "Until cleared"], [30, "30 minutes"], [60, "1 hour"], [120, "2 hours"], [480, "8 hours"]];
   function when(value) {
     return new Date(value).toLocaleString();
@@ -303,7 +663,7 @@
       });
     }
     _controls(groups) {
-      if (!groups.length) return el("p", "Create a mode in Devices & services to get started.", "muted");
+      if (!groups.length) return el("p", "Create a mode in Devices & services to get started.", "ha-plus-muted");
       let group = groups.find((item) => item.key === this._selection.group);
       if (!group) {
         group = groups[0];
@@ -311,7 +671,7 @@
         this._selection.mode = group.members.find((mode) => mode.active)?.id || "";
       }
       if (!group.members.some((mode) => mode.id === this._selection.mode)) this._selection.mode = "";
-      const form = el("div", void 0, "controls");
+      const form = el("div", void 0, "controls ha-plus-form-grid");
       form.append(
         dropdown("group", "Group", groups.map((item) => ({ value: item.key, label: item.name })), group.key, (value) => this._choose("group", value), this._busy),
         dropdown("mode", "Mode", [{ value: "", label: "None \xB7 normal behavior" }, ...group.members.map((mode) => ({ value: mode.id, label: mode.name }))], this._selection.mode, (value) => this._choose("mode", value), this._busy || !group.members.length),
@@ -329,36 +689,36 @@
         detail.append(el("p", `${name}: ${effect.state}${effect.brightness ? ` \xB7 brightness ${Math.round(effect.brightness / 255 * 100)}%` : ""}${mode.active && owner && owner.id !== mode.id ? ` \xB7 overridden by ${owner.name}` : ""}`));
       }
       for (const [key, value] of Object.entries(mode.values)) detail.append(el("p", `${key}: ${value}`));
-      if (!Object.keys(mode.effects).length && !Object.keys(mode.values).length) detail.append(el("p", "No managed settings. Use this mode as an automation condition.", "muted"));
+      if (!Object.keys(mode.effects).length && !Object.keys(mode.values).length) detail.append(el("p", "No managed settings. Use this mode as an automation condition.", "ha-plus-muted"));
       return detail;
     }
     _groupCard(group) {
       const active = group.members.find((mode) => mode.active);
-      const card = el("ha-card", void 0, `group${active ? " has-active" : ""}`);
-      const row = el("div", void 0, "row");
+      const card = el("ha-card", void 0, `group ha-plus-group ha-plus-padded-card${active ? " active" : ""}`);
+      const row = el("div", void 0, "ha-plus-row");
       row.append(icon(active?.icon || "mdi:layers-outline"), el("h3", group.name));
-      card.append(row, el("p", active?.name || "Normal behavior", "group-state"));
+      card.append(row, el("p", active?.name || "Normal behavior", "group-state ha-plus-value"));
       if (active) {
-        card.append(el("p", `Started ${when(active.active.since)} \xB7 ${active.active.source}`, "muted"));
-        if (active.active.until) card.append(el("p", `Ends ${when(active.active.until)}`, "muted"));
+        card.append(el("p", `Started ${when(active.active.since)} \xB7 ${active.active.source}`, "ha-plus-muted"));
+        if (active.active.until) card.append(el("p", `Ends ${when(active.active.until)}`, "ha-plus-muted"));
         const owned = [...Object.values(this._data.effects), ...Object.values(this._data.values)].filter((item) => item.mode_id === active.id).length;
         const total = Object.keys(active.effects).length + Object.keys(active.values).length;
-        card.append(el("p", `${owned} effective \xB7 ${total - owned} overridden`, "muted"));
+        card.append(el("p", `${owned} effective \xB7 ${total - owned} overridden`, "ha-plus-muted"));
       }
-      const chips = el("div", void 0, "chips");
+      const chips = el("div", void 0, "ha-plus-chips");
       for (const mode of group.members) {
-        const chip = el("span", void 0, `chip${mode.active ? " active" : ""}`);
+        const chip = el("span", void 0, `chip ha-plus-chip${mode.active ? " active" : ""}`);
         chip.append(icon(mode.icon || "mdi:home-switch"), el("span", mode.name));
         chip.setAttribute("aria-label", `${mode.name}: ${mode.active ? "active" : "inactive"}`);
         chips.append(chip);
       }
       card.append(chips);
-      if (!group.members.length) card.append(el("p", "No modes yet. Choose this group when adding a mode in Devices & services.", "muted"));
+      if (!group.members.length) card.append(el("p", "No modes yet. Choose this group when adding a mode in Devices & services.", "ha-plus-muted"));
       for (const mode of group.members) card.append(this._modeDetails(mode));
       return card;
     }
     _newGroup() {
-      const detail = el("details", void 0, "create-group");
+      const detail = el("details", void 0, "create-group ha-plus-create");
       detail.append(el("summary", "Create group"));
       const form = el("form");
       const { field, input } = textField("Group name", {
@@ -387,9 +747,9 @@
     }
     _render() {
       const focused = this.shadowRoot.activeElement?.dataset.control;
-      this.shadowRoot.replaceChildren(el("style", STYLES));
+      this.shadowRoot.replaceChildren(el("style", appStyles));
       const compact = this.localName === "modes-plus-card";
-      const root = el(compact ? "ha-card" : "div");
+      const root = el(compact ? "ha-card" : "div", void 0, compact ? "ha-plus-compact" : "");
       if (!compact) {
         const refresh = button(void 0, () => this._refresh(), this._loading, "icon-button");
         refresh.setAttribute("aria-label", "Refresh modes");
@@ -397,7 +757,7 @@
         refresh.append(icon("mdi:refresh"));
         root.append(panelHeader("HA+ Modes", { hass: this._hass, narrow: this.narrow, actions: [refresh] }));
       }
-      const main = el("main", void 0, compact ? "compact" : "ha-plus-content");
+      const main = el("main", void 0, compact ? "ha-plus-compact-content" : "ha-plus-content");
       root.append(main);
       if (compact) main.append(el("h2", this._config?.title || "Home modes"));
       if (this._error) {
@@ -413,16 +773,16 @@
       let modes = [...this._data.modes].sort((a, b) => b.priority - a.priority || a.name.localeCompare(b.name));
       const groups = this._groups(modes);
       this._currentGroups = groups;
-      const controls = compact ? el("section") : el("ha-card");
+      const controls = compact ? el("section") : el("ha-card", void 0, "ha-plus-padded-card");
       if (!compact) controls.append(el("h2", "Choose a household setting"));
       controls.append(this._controls(groups));
       if (!compact) {
-        controls.append(el("p", "Each group has one selected mode. Different groups can stay active together; higher priorities override conflicting settings. Choose None to clear a group.", "muted"));
+        controls.append(el("p", "Each group has one selected mode. Different groups can stay active together; higher priorities override conflicting settings. Choose None to clear a group.", "ha-plus-muted"));
         if (this._hass.user?.is_admin) controls.append(this._newGroup());
       }
       main.append(controls);
       if (!compact) main.append(el("h2", "Your groups"));
-      const grid = el("section", void 0, "grid");
+      const grid = el("section", void 0, "grid ha-plus-card-grid");
       for (const group of groups) grid.append(this._groupCard(group));
       main.append(grid);
       const errors = Object.entries(this._data.errors);
@@ -437,21 +797,21 @@
         main.append(box);
       }
       if (!compact) {
-        const explain = el("ha-card");
+        const explain = el("ha-card", void 0, "ha-plus-padded-card");
         explain.append(el("h2", "Effective settings"));
         for (const [key, item] of Object.entries(this._data.effects)) {
           const owner = this._data.modes.find((mode) => mode.id === item.mode_id);
-          explain.append(el("div", `${this._hass.states[key]?.attributes.friendly_name || key} \u2192 ${item.desired.state}${item.desired.brightness ? ` \xB7 ${Math.round(item.desired.brightness / 255 * 100)}%` : ""} \xB7 ${owner?.group ? owner.group + " / " : ""}${owner?.name || item.mode_id}`, "effect"));
+          explain.append(el("div", `${this._hass.states[key]?.attributes.friendly_name || key} \u2192 ${item.desired.state}${item.desired.brightness ? ` \xB7 ${Math.round(item.desired.brightness / 255 * 100)}%` : ""} \xB7 ${owner?.group ? owner.group + " / " : ""}${owner?.name || item.mode_id}`, "ha-plus-detail-row"));
         }
         for (const [key, item] of Object.entries(this._data.values)) {
           const owner = this._data.modes.find((mode) => mode.id === item.mode_id);
-          explain.append(el("div", `${key} \u2192 ${item.value} \xB7 ${owner?.group ? owner.group + " / " : ""}${owner?.name}`, "effect"));
+          explain.append(el("div", `${key} \u2192 ${item.value} \xB7 ${owner?.group ? owner.group + " / " : ""}${owner?.name}`, "ha-plus-detail-row"));
         }
-        if (!Object.keys(this._data.effects).length && !Object.keys(this._data.values).length) explain.append(el("p", "No settings are currently controlled by modes.", "muted"));
+        if (!Object.keys(this._data.effects).length && !Object.keys(this._data.values).length) explain.append(el("p", "No settings are currently controlled by modes.", "ha-plus-muted"));
         main.append(explain);
         const history = el("details");
         history.append(el("summary", "Recent changes"));
-        for (const item of this._data.history) history.append(el("p", `${item.mode} ${item.active ? "selected" : "cleared"} \xB7 ${when(item.at)}`, "muted"));
+        for (const item of this._data.history) history.append(el("p", `${item.mode} ${item.active ? "selected" : "cleared"} \xB7 ${when(item.at)}`, "ha-plus-muted"));
         main.append(history);
         if (this._hass.user?.is_admin) {
           const link = el("a", "Add or configure modes in Devices & services");
