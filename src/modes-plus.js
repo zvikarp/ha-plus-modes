@@ -2,7 +2,7 @@ import messages from "./translations/en.json";
 import { localize, haContext } from "@ha-plus/ui";
 const t = (key, values) => localize(haContext(), messages, key, values);
 
-import { appStyles, el, icon, button, textField, dropdown, panelHeader, notice, integrationUrl, applyPreferences, formatDateTime, showMoreInfo, showToast, loadNativeComponents, navigate, focusControl } from "@ha-plus/ui";
+import { appFooter, appStyles, el, icon, button, textField, dropdown, panelHeader, notice, integrationUrl, applyPreferences, formatDateTime, showMoreInfo, showToast, loadNativeComponents, navigate, focusControl } from "@ha-plus/ui";
 
 /* HA+ Modes uses HA components and theme tokens, with no runtime dependencies. */
 const DOMAIN = "modes_plus";
@@ -62,6 +62,12 @@ class ModesView extends HTMLElement {
       if (this.isConnected) this._render();
     }
   }
+  set panel(value) {
+    this._panel = value;
+    const version = this.shadowRoot.querySelector("[data-version]");
+    if (version) version.textContent = value?.config?.version ? `v${value.config.version}` : "";
+  }
+
   connectedCallback() {
     this.ownerDocument.addEventListener("pointerdown", this._outside, true);
     if (this._hass) this._refresh();
@@ -228,7 +234,14 @@ class ModesView extends HTMLElement {
         onRefresh: () => this._refresh(), refreshing: this._loading }));
     }
     const main = el("main", undefined, compact ? "ha-plus-compact-content" : "ha-plus-content");
-    root.append(main);
+    const body = el("div", undefined, compact ? "" : "ha-plus-page-body");
+    body.append(main);
+    if (!compact) body.append(appFooter({
+      githubUrl: "https://github.com/zvikarp/ha-plus-modes",
+      documentationUrl: "https://github.com/zvikarp/ha-plus-modes#readme",
+      version: this._panel?.config?.version,
+    }));
+    root.append(body);
     if (compact) main.append(el("h2", this._config?.title || this._t("home_modes")));
     if (this._uiError) {
       const error = notice(this._uiError, "error");

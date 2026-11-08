@@ -103,7 +103,7 @@ async def async_register_frontend(hass, manager):
         sidebar_icon="modes-plus:logo",
         module_url=url,
         require_admin=False,
-        config={},
+        config={"version": str(integration.version)},
     )
 
 

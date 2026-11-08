@@ -760,8 +760,45 @@
     await nativeComponents;
   }
 
+  // node_modules/@ha-plus/ui/src/footer.js
+  var footerStyles = `
+  .ha-plus-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    margin-top: auto;
+    padding: 24px 16px;
+    border-top: 1px solid var(--divider-color, #e0e0e0);
+    color: var(--secondary-text-color, #727272);
+    font: 14px var(--ha-font-family-body, var(--primary-font-family, Roboto, sans-serif));
+  }
+  .ha-plus-footer a { color: var(--primary-color, #03a9f4); text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
+  .ha-plus-footer a:hover { text-decoration: underline; }
+  .ha-plus-footer a:focus-visible { outline: 2px solid var(--primary-color, #03a9f4); outline-offset: 4px; }
+  .ha-plus-page-body { display: flex; flex-direction: column; min-height: calc(100dvh - var(--header-height, 56px)); }
+  .ha-plus-page-body > main { flex: 1; width: 100%; box-sizing: border-box; }
+`;
+  function appFooter({ githubUrl, documentationUrl, version } = {}) {
+    const footer = el("footer", void 0, "ha-plus-footer");
+    footer.append(el("style", footerStyles));
+    for (const [label, href] of [["GitHub", githubUrl], ["Documentation", documentationUrl]]) {
+      if (!href) continue;
+      const link = el("a", label);
+      link.href = href;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      footer.append(link);
+    }
+    const number = el("span", version ? `v${String(version).replace(/^v/, "")}` : "");
+    number.dataset.version = "";
+    footer.append(number);
+    return footer;
+  }
+
   // node_modules/@ha-plus/ui/src/index.js
-  /*! @ha-plus/ui v0.3.2 | MIT | Copyright (c) 2026 HA+ contributors | https://github.com/zvikarp/ha-plus-packages/blob/main/LICENSE */
+  /*! @ha-plus/ui v0.3.3 | MIT | Copyright (c) 2026 HA+ contributors | https://github.com/zvikarp/ha-plus-packages/blob/main/LICENSE */
   var nextId = 0;
   function dropdown(key, label, options, value, change, disabled, hass) {
     if (document.defaultView?.customElements.get("ha-form") && hass) {
@@ -967,6 +1004,11 @@
         if (this.isConnected) this._render();
       }
     }
+    set panel(value) {
+      this._panel = value;
+      const version = this.shadowRoot.querySelector("[data-version]");
+      if (version) version.textContent = value?.config?.version ? `v${value.config.version}` : "";
+    }
     connectedCallback() {
       this.ownerDocument.addEventListener("pointerdown", this._outside, true);
       if (this._hass) this._refresh();
@@ -1162,7 +1204,14 @@
         }));
       }
       const main = el("main", void 0, compact ? "ha-plus-compact-content" : "ha-plus-content");
-      root.append(main);
+      const body = el("div", void 0, compact ? "" : "ha-plus-page-body");
+      body.append(main);
+      if (!compact) body.append(appFooter({
+        githubUrl: "https://github.com/zvikarp/ha-plus-modes",
+        documentationUrl: "https://github.com/zvikarp/ha-plus-modes#readme",
+        version: this._panel?.config?.version
+      }));
+      root.append(body);
       if (compact) main.append(el("h2", this._config?.title || this._t("home_modes")));
       if (this._uiError) {
         const error = notice(this._uiError, "error");

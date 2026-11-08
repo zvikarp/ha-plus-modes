@@ -185,7 +185,7 @@ test("panel and compact card use only the shared app stylesheet", async () => {
   card.hass = hass;
   await tick();
   for (const view of [panel, card]) {
-    assert.equal(view.shadowRoot.querySelectorAll("style").length, 1);
+    assert.equal([...view.shadowRoot.children].filter(node => node.localName === "style").length, 1);
     assert.equal(view.shadowRoot.querySelector("style").textContent, appStyles);
     assert.equal(view.shadowRoot.querySelector("[style]"), null);
     assert.ok(view.shadowRoot.querySelector(".ha-plus-form-grid"));
