@@ -797,7 +797,7 @@
   }
 
   // node_modules/@ha-plus/ui/src/index.js
-  /*! @ha-plus/ui v0.4.0-rc.3 | MIT | Copyright (c) 2026 HA+ contributors | https://github.com/zvikarp/ha-plus-packages/blob/main/LICENSE */
+  /*! @ha-plus/ui v0.4.0-rc.4 | MIT | Copyright (c) 2026 HA+ contributors | https://github.com/zvikarp/ha-plus-packages/blob/main/LICENSE */
   var nextId = 0;
   function dropdown(key, label, options, value, change, disabled, hass) {
     if (document.defaultView?.customElements.get("ha-form") && hass) {
