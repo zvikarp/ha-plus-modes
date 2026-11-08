@@ -4,12 +4,13 @@
   "type": "module",
   "scripts": {
     "test": "node --test tests/frontend.test.js",
-    "build": "esbuild src/modes-plus.js --bundle --format=iife --target=es2022 --legal-comments=inline --outfile=custom_components/modes_plus/frontend/modes-plus.js",
+    "build": "ha-plus-frontend-vendor custom_components/modes_plus/ha_plus_frontend && esbuild src/modes-plus.js --bundle --format=iife --target=es2022 --legal-comments=inline --outfile=custom_components/modes_plus/frontend/modes-plus.js",
     "check:build": "npm run build && git diff --exit-code -- custom_components"
   },
   "devDependencies": {
     "@ha-plus/ui": "https://github.com/zvikarp/ha-plus-packages/releases/download/ui-v0.3.4/ha-plus-ui-0.3.4.tgz",
     "esbuild": "0.25.12",
-    "linkedom": "0.18.12"
+    "linkedom": "0.18.12",
+    "@ha-plus/frontend": "https://github.com/zvikarp/ha-plus-packages/releases/download/frontend-v0.1.0/ha-plus-frontend-0.1.0.tgz"
   }
 }

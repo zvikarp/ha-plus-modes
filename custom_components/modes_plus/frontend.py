@@ -1,16 +1,18 @@
-"""Authenticated overview API, bundled panel, and dashboard card."""
+"""Register app-owned frontend assets through the shared HA+ lifecycle."""
 
 from pathlib import Path
 
 import voluptuous as vol
-from homeassistant.components import frontend, websocket_api
-from homeassistant.components.frontend import add_extra_js_url
-from homeassistant.components.http import StaticPathConfig
+from homeassistant.components import websocket_api
 
 from .const import DOMAIN, SIGNAL
 from .groups import async_get_groups
-
-PATH = "/modes_plus/modes-plus.js"
+from .ha_plus_frontend import (
+    async_register_frontend as register_frontend,
+)
+from .ha_plus_frontend import (
+    async_unregister_frontend as unregister_frontend,
+)
 
 
 @websocket_api.websocket_command({vol.Required("type"): "modes_plus/snapshot"})
@@ -70,42 +72,23 @@ async def create_group(hass, connection, msg):
 
 
 async def async_register_frontend(hass, manager):
-    from homeassistant.loader import async_get_integration
-
-    integration = await async_get_integration(hass, DOMAIN)
-    url = f"{PATH}?v={integration.version}"
-    if not hass.data.get("modes_plus_frontend_registered"):
-        await hass.http.async_register_static_paths(
-            [
-                StaticPathConfig(
-                    "/modes_plus/icon.png",
-                    str(Path(__file__).parent / "brand/icon.png"),
-                    cache_headers=False,
-                ),
-                StaticPathConfig(
-                    "/modes_plus/modes-plus.js",
-                    str(Path(__file__).parent / "frontend" / "modes-plus.js"),
-                    cache_headers=False,
-                ),
-            ]
-        )
-        add_extra_js_url(hass, url)
-        websocket_api.async_register_command(hass, snapshot)
-        websocket_api.async_register_command(hass, create_group)
-        hass.data["modes_plus_frontend_registered"] = True
-    from homeassistant.components.panel_custom import async_register_panel
-
-    await async_register_panel(
+    root = Path(__file__).parent
+    await register_frontend(
         hass,
+        domain=DOMAIN,
+        module_url="/modes_plus/modes-plus.js",
+        static_paths={
+            "/modes_plus/modes-plus.js": root / "frontend/modes-plus.js",
+            "/modes_plus/icon.png": root / "brand/icon.png",
+        },
         webcomponent_name="modes-plus-panel",
         frontend_url_path="ha-plus-modes",
         sidebar_title="HA+ Modes",
         sidebar_icon="modes-plus:logo",
-        module_url=url,
         require_admin=False,
-        config={"version": str(integration.version)},
+        commands=(snapshot, create_group),
     )
 
 
 def async_unregister_frontend(hass):
-    frontend.async_remove_panel(hass, "ha-plus-modes")
+    unregister_frontend(hass, "ha-plus-modes")

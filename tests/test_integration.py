@@ -112,6 +112,9 @@ async def test_real_frontend_registration(
     await hass.async_block_till_done()
     async_unregister_frontend(hass)
     assert "ha-plus-modes" not in hass.data["frontend_panels"]
+    await async_register_frontend(hass, manager)
+    assert "ha-plus-modes" in hass.data["frontend_panels"]
+    async_unregister_frontend(hass)
 
 
 async def test_recursive_mode_target_is_rejected_without_deadlock(hass):
