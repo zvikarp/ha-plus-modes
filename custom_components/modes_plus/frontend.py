@@ -78,10 +78,15 @@ async def async_register_frontend(hass, manager):
         await hass.http.async_register_static_paths(
             [
                 StaticPathConfig(
+                    "/modes_plus/icon.png",
+                    str(Path(__file__).parent / "brand/icon.png"),
+                    cache_headers=False,
+                ),
+                StaticPathConfig(
                     "/modes_plus/modes-plus.js",
                     str(Path(__file__).parent / "frontend" / "modes-plus.js"),
                     cache_headers=False,
-                )
+                ),
             ]
         )
         add_extra_js_url(hass, url)

@@ -2,7 +2,7 @@ import messages from "./translations/en.json";
 import { localize, haContext } from "@ha-plus/ui";
 const t = (key, values) => localize(haContext(), messages, key, values);
 
-import { appStyles, el, icon, button, textField, dropdown, panelHeader, notice, iconButton, overflowMenu, integrationUrl, applyPreferences, formatDateTime, showMoreInfo, showToast, loadNativeComponents, navigate, focusControl } from "@ha-plus/ui";
+import { appStyles, el, icon, button, textField, dropdown, panelHeader, notice, integrationUrl, applyPreferences, formatDateTime, showMoreInfo, showToast, loadNativeComponents, navigate, focusControl } from "@ha-plus/ui";
 
 /* HA+ Modes uses HA components and theme tokens, with no runtime dependencies. */
 const DOMAIN = "modes_plus";
@@ -223,14 +223,9 @@ class ModesView extends HTMLElement {
     const compact = this.localName === "modes-plus-card";
     const root = el(compact ? "ha-card" : "div", undefined, compact ? "ha-plus-compact" : "");
     if (!compact) {
-      const refresh = iconButton(this._t("refresh_modes"), "mdi:refresh", () => this._refresh(), this._loading);
-      refresh.setAttribute("aria-label", this._t("refresh_modes"));
-      const actions = [refresh];
-      if (this._hass?.user?.is_admin) actions.push(overflowMenu([
-        { label: this._t("add_mode"), run: () => { navigate(this, integrationUrl(DOMAIN, true)); } },
-        { label: this._t("integration_settings"), run: () => { navigate(this, integrationUrl(DOMAIN)); } },
-      ]));
-      root.append(panelHeader("HA+ Modes", { hass: this._hass, narrow: this.narrow, actions }));
+      root.append(panelHeader("HA+ Modes", { hass: this._hass, narrow: this.narrow,
+        domain: DOMAIN, iconUrl: "/modes_plus/icon.png",
+        onRefresh: () => this._refresh(), refreshing: this._loading }));
     }
     const main = el("main", undefined, compact ? "ha-plus-compact-content" : "ha-plus-content");
     root.append(main);
@@ -258,7 +253,9 @@ class ModesView extends HTMLElement {
     controls.append(this._controls(groups));
     if (!compact) {
       controls.append(el("p", this._t("each_group_has_one_selected_mode_different_groups_can_stay_active_together_higher_pri"), "ha-plus-muted"));
-      if (this._hass.user?.is_admin) controls.append(this._newGroup());
+      if (this._hass.user?.is_admin) {
+        controls.append(this._newGroup(), button(this._t("add_mode"), () => navigate(this, integrationUrl(DOMAIN, true))));
+      }
     }
     main.append(controls);
     if (!compact) main.append(el("h2", this._t("your_groups")));

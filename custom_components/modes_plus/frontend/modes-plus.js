@@ -77,6 +77,7 @@
   function iconButton(label, name, handler, disabled = false) {
     const node = el("ha-icon-button");
     node.label = label;
+    node.setAttribute("aria-label", label);
     node.disabled = disabled;
     node.append(icon(name));
     node.addEventListener("click", () => {
@@ -119,7 +120,33 @@
   }
 
   // node_modules/@ha-plus/ui/src/styles.js
-  var themeStyles = `
+  var panelHeaderStyles = `
+  .ha-plus-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: var(--header-height, 56px);
+    min-height: var(--header-height, 56px);
+    padding: 0 12px;
+    box-sizing: border-box;
+    font-family: var(--ha-font-family-body, var(--primary-font-family, Roboto, sans-serif));
+    border-bottom: 1px solid var(--divider-color, #e0e0e0);
+    background: var(--app-header-background-color, var(--primary-background-color, #fafafa));
+    color: var(--app-header-text-color, var(--primary-text-color, #212121));
+  }
+  .ha-plus-header-heading { flex: 1; min-width: 0; }
+  .ha-plus-header h1 { margin: 0; font-size: 20px; font-weight: 400; line-height: 24px; overflow-wrap: anywhere; }
+  .ha-plus-header-icon { width: 32px; height: 32px; object-fit: contain; flex-shrink: 0; }
+  .ha-plus-header :is(ha-menu-button, ha-icon-button) { flex-shrink: 0; }
+  @media (max-width: 480px) {
+    .ha-plus-header { gap: 4px; padding-inline: 4px; }
+    .ha-plus-header h1 { font-size: 18px; line-height: 22px; }
+  }
+`;
+  var themeStyles = `${panelHeaderStyles}
   :host { display:block; color:var(--primary-text-color,#212121); font-family:var(--primary-font-family,var(--paper-font-body1_-_font-family,Roboto,sans-serif)); }
   *, *::before, *::after { box-sizing:border-box; }
   [hidden] { display:none !important; }
@@ -143,8 +170,6 @@
   .listbox { position:absolute; z-index:10; inset-inline:0; top:100%; margin-top:4px; max-height:300px; overflow:auto; padding:6px; background:var(--card-background-color,#fff); border:1px solid var(--divider-color,#e0e0e0); border-radius:14px; box-shadow:var(--ha-card-box-shadow,0 4px 16px #0003); }
   .option { display:block; width:100%; text-align:start; border-radius:10px; background:transparent; color:var(--primary-text-color,#212121); white-space:normal; overflow-wrap:anywhere; }
   .option[aria-selected=true] { color:var(--primary-color,#03a9f4); background:var(--secondary-background-color,#f5f5f5); }
-  .ha-plus-header { display:flex; align-items:center; gap:12px; padding:4px 16px; min-height:var(--header-height,56px); background:var(--app-header-background-color,var(--primary-background-color,#fafafa)); color:var(--app-header-text-color,var(--primary-text-color,#212121)); }
-  .ha-plus-header h1 { font-size:20px; font-weight:400; flex:1; margin:0; }
   .ha-plus-content { max-width:1000px; margin:auto; padding:24px; }
   .notice { padding:12px 16px; margin-bottom:16px; background:var(--secondary-background-color,#f5f5f5); border-radius:14px; overflow-wrap:anywhere; }
   .error { color:var(--error-color,#db4437); white-space:pre-wrap; }
@@ -163,7 +188,6 @@
   .ha-plus-dialog-actions { display: flex; flex-wrap: wrap; justify-content: end; gap: 8px; }
   ha-alert.notice { padding: 0; background: transparent; }
   ha-form.field { min-width: 0; }
-  .ha-plus-header { min-height: var(--header-height, 56px); border-bottom: 1px solid var(--divider-color, #e0e0e0); }
   ha-dialog { --mdc-dialog-min-width: min(420px, calc(100vw - 32px)); --mdc-dialog-max-width: 560px; }
 `;
   var appStyles = `${themeStyles}${nativeStyles}
@@ -263,13 +287,6 @@
     gap: 12px;
   }
 
-  .ha-plus-group {
-    border-inline-start: 4px solid var(--divider-color, #e0e0e0);
-  }
-
-  .ha-plus-group.active {
-    border-inline-start-color: var(--primary-color, #03a9f4);
-  }
 
   .ha-plus-value {
     margin: 12px 0 4px;
@@ -658,6 +675,45 @@
     });
   }
 
+  // node_modules/@ha-plus/ui/src/ha-actions.js
+  function showMoreInfo(host, entityId) {
+    if (!/^[a-z_]+\.[a-z0-9_]+$/.test(entityId || "")) return false;
+    const root = host || (() => {
+      try {
+        return window.parent.document.querySelector("home-assistant");
+      } catch {
+        return void 0;
+      }
+    })();
+    if (!root) return false;
+    const Event = root.ownerDocument.defaultView.CustomEvent;
+    root.dispatchEvent(new Event("hass-more-info", { bubbles: true, composed: true, detail: { entityId } }));
+    return true;
+  }
+  function integrationUrl(domain, add = false) {
+    if (!/^[a-z0-9_]+$/.test(domain)) throw new TypeError("Invalid integration domain");
+    return add ? `/config/integrations/dashboard/add?domain=${domain}` : `/config/integrations/integration/${domain}`;
+  }
+  function showToast(host, message) {
+    if (!host) {
+      try {
+        host = window.parent.document.querySelector("home-assistant");
+      } catch {
+        return false;
+      }
+    }
+    if (!host) return false;
+    const Event = host.ownerDocument.defaultView.CustomEvent;
+    host.dispatchEvent(new Event("hass-notification", { bubbles: true, composed: true, detail: { message } }));
+    return true;
+  }
+  function navigate(host, path) {
+    if (!path.startsWith("/") || path.startsWith("//")) throw new TypeError("Navigation must stay within Home Assistant");
+    const view = host?.ownerDocument.defaultView || window.parent;
+    view.history.pushState(null, "", path);
+    view.dispatchEvent(new view.CustomEvent("location-changed", { detail: { replace: false } }));
+  }
+
   // node_modules/@ha-plus/ui/src/loader.js
   var nativeComponents;
   async function loadNativeComponents(host) {
@@ -704,100 +760,8 @@
     await nativeComponents;
   }
 
-  // node_modules/@ha-plus/ui/src/ha-actions.js
-  function showMoreInfo(host, entityId) {
-    if (!/^[a-z_]+\.[a-z0-9_]+$/.test(entityId || "")) return false;
-    const root = host || (() => {
-      try {
-        return window.parent.document.querySelector("home-assistant");
-      } catch {
-        return void 0;
-      }
-    })();
-    if (!root) return false;
-    const Event = root.ownerDocument.defaultView.CustomEvent;
-    root.dispatchEvent(new Event("hass-more-info", { bubbles: true, composed: true, detail: { entityId } }));
-    return true;
-  }
-  function integrationUrl(domain, add = false) {
-    if (!/^[a-z0-9_]+$/.test(domain)) throw new TypeError("Invalid integration domain");
-    return add ? `/config/integrations/dashboard/add?domain=${domain}` : `/config/integrations/integration/${domain}`;
-  }
-  function showToast(host, message) {
-    if (!host) {
-      try {
-        host = window.parent.document.querySelector("home-assistant");
-      } catch {
-        return false;
-      }
-    }
-    if (!host) return false;
-    const Event = host.ownerDocument.defaultView.CustomEvent;
-    host.dispatchEvent(new Event("hass-notification", { bubbles: true, composed: true, detail: { message } }));
-    return true;
-  }
-  function overflowMenu(actions, label = localize(haContext(), {}, "more_actions")) {
-    const registry = document.defaultView?.customElements;
-    if (registry?.get("ha-dropdown")) {
-      const menu2 = el("ha-dropdown");
-      const trigger2 = iconButton(label, "mdi:dots-vertical", () => {
-      });
-      trigger2.slot = "trigger";
-      menu2.append(trigger2);
-      actions.forEach((action, index) => {
-        const item = el("ha-dropdown-item", action.label);
-        item.value = String(index);
-        item.disabled = Boolean(action.disabled);
-        menu2.append(item);
-      });
-      menu2.addEventListener("wa-select", (event) => {
-        const action = actions[Number(event.detail?.item?.value)];
-        if (action && !action.disabled) action.run();
-      });
-      return menu2;
-    }
-    if (registry?.get("ha-button-menu")) {
-      const menu2 = el("ha-button-menu");
-      const trigger2 = iconButton(label, "mdi:dots-vertical", () => {
-      });
-      trigger2.slot = "trigger";
-      menu2.append(trigger2);
-      for (const action of actions) {
-        const item = el("mwc-list-item", action.label);
-        item.disabled = Boolean(action.disabled);
-        item.addEventListener("click", () => {
-          if (!item.disabled) action.run();
-        });
-        menu2.append(item);
-      }
-      return menu2;
-    }
-    const menu = el("details", void 0, "ha-plus-overflow");
-    const trigger = el("summary", label);
-    menu.append(trigger);
-    for (const action of actions) {
-      const item = el("button", action.label);
-      item.type = "button";
-      item.disabled = Boolean(action.disabled);
-      item.addEventListener("click", () => {
-        if (!item.disabled) {
-          menu.open = false;
-          action.run();
-        }
-      });
-      menu.append(item);
-    }
-    return menu;
-  }
-  function navigate(host, path) {
-    if (!path.startsWith("/") || path.startsWith("//")) throw new TypeError("Navigation must stay within Home Assistant");
-    const view = host?.ownerDocument.defaultView || window.parent;
-    view.history.pushState(null, "", path);
-    view.dispatchEvent(new view.CustomEvent("location-changed", { detail: { replace: false } }));
-  }
-
   // node_modules/@ha-plus/ui/src/index.js
-  /*! @ha-plus/ui v0.4.0-rc.4 | MIT | Copyright (c) 2026 HA+ contributors | https://github.com/zvikarp/ha-plus-packages/blob/main/LICENSE */
+  /*! @ha-plus/ui v0.3.2 | MIT | Copyright (c) 2026 HA+ contributors | https://github.com/zvikarp/ha-plus-packages/blob/main/LICENSE */
   var nextId = 0;
   function dropdown(key, label, options, value, change, disabled, hass) {
     if (document.defaultView?.customElements.get("ha-form") && hass) {
@@ -903,7 +867,7 @@
     field.append(input);
     return { field, input };
   }
-  function panelHeader(title, { hass, narrow, actions = [], subtitle } = {}) {
+  function panelHeader(title, { hass, narrow, actions = [], subtitle, domain, iconUrl, onRefresh, refreshing = false } = {}) {
     const header = el("header", void 0, "ha-plus-header");
     const menu = el("ha-menu-button");
     menu.hass = hass;
@@ -911,7 +875,21 @@
     const heading = el("div", void 0, "ha-plus-header-heading");
     heading.append(el("h1", title));
     if (subtitle) heading.append(el("p", subtitle, "ha-plus-muted"));
-    header.append(menu, heading, ...actions);
+    header.append(menu);
+    if (iconUrl) {
+      const logo = el("img", void 0, "ha-plus-header-icon");
+      logo.src = iconUrl;
+      logo.alt = "";
+      header.append(logo);
+    }
+    header.append(heading);
+    if (onRefresh) header.append(iconButton(localize(hass, {}, "common.refresh"), "mdi:refresh", onRefresh, refreshing));
+    header.append(...actions);
+    if (domain && hass?.user?.is_admin) {
+      const settings = iconButton(localize(hass, {}, "settings"), "mdi:cog", () => navigate(header, integrationUrl(domain)));
+      settings.dataset.settings = "";
+      header.append(settings);
+    }
     return header;
   }
   function notice(message, kind = "status") {
@@ -1174,18 +1152,14 @@
       const compact = this.localName === "modes-plus-card";
       const root = el(compact ? "ha-card" : "div", void 0, compact ? "ha-plus-compact" : "");
       if (!compact) {
-        const refresh = iconButton(this._t("refresh_modes"), "mdi:refresh", () => this._refresh(), this._loading);
-        refresh.setAttribute("aria-label", this._t("refresh_modes"));
-        const actions = [refresh];
-        if (this._hass?.user?.is_admin) actions.push(overflowMenu([
-          { label: this._t("add_mode"), run: () => {
-            navigate(this, integrationUrl(DOMAIN, true));
-          } },
-          { label: this._t("integration_settings"), run: () => {
-            navigate(this, integrationUrl(DOMAIN));
-          } }
-        ]));
-        root.append(panelHeader("HA+ Modes", { hass: this._hass, narrow: this.narrow, actions }));
+        root.append(panelHeader("HA+ Modes", {
+          hass: this._hass,
+          narrow: this.narrow,
+          domain: DOMAIN,
+          iconUrl: "/modes_plus/icon.png",
+          onRefresh: () => this._refresh(),
+          refreshing: this._loading
+        }));
       }
       const main = el("main", void 0, compact ? "ha-plus-compact-content" : "ha-plus-content");
       root.append(main);
@@ -1213,7 +1187,9 @@
       controls.append(this._controls(groups));
       if (!compact) {
         controls.append(el("p", this._t("each_group_has_one_selected_mode_different_groups_can_stay_active_together_higher_pri"), "ha-plus-muted"));
-        if (this._hass.user?.is_admin) controls.append(this._newGroup());
+        if (this._hass.user?.is_admin) {
+          controls.append(this._newGroup(), button(this._t("add_mode"), () => navigate(this, integrationUrl(DOMAIN, true))));
+        }
       }
       main.append(controls);
       if (!compact) main.append(el("h2", this._t("your_groups")));

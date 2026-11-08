@@ -91,7 +91,7 @@ test("custom dropdown supports keyboard open/escape and refresh is icon-only", a
   escape.key = "Escape";
   trigger.dispatchEvent(escape);
   assert.equal(trigger.getAttribute("aria-expanded"), "false");
-  const refresh = panel.shadowRoot.querySelector('[aria-label="Refresh modes"]');
+  const refresh = panel.shadowRoot.querySelector('[aria-label="Refresh"]');
   assert.equal(refresh.textContent, "");
   assert.equal(refresh.querySelector("ha-icon").getAttribute("icon"), "mdi:refresh");
 });
@@ -108,7 +108,7 @@ test("mode and group names are text, never HTML", async () => {
   const data = snapshot();
   data.modes[0].name = '<img src=x onerror="alert(1)">';
   const { panel } = await setup(data);
-  assert.equal(panel.shadowRoot.querySelector("img"), null);
+  assert.equal(panel.shadowRoot.querySelector("main img"), null);
   assert.match(text(panel.shadowRoot), /<img src=x/);
 });
 
