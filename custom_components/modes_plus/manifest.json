@@ -1,7 +1,7 @@
 {
   "domain": "modes_plus",
   "name": "HA+ Modes",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "codeowners": [
     "@zvikarp"
   ],
