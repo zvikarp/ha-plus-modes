@@ -192,3 +192,18 @@ test("panel and compact card use only the shared app stylesheet", async () => {
     assert.ok(view.shadowRoot.querySelector(".ha-plus-card-grid"));
   }
 });
+
+test("group drafts survive refresh and narrow-layout changes", async () => {
+  const { panel, window } = await setup(snapshot());
+  const input = panel.shadowRoot.querySelector('[name="group_name"]');
+  input.value = "Quiet evenings";
+  input.dispatchEvent(new window.Event("input"));
+  const details = input.closest("details");
+  details.open = true;
+  details.dispatchEvent(new window.Event("toggle"));
+  panel.narrow = true;
+  assert.equal(panel.shadowRoot.querySelector('[name="group_name"]'), input);
+  await panel._refresh();
+  assert.equal(panel.shadowRoot.querySelector('[name="group_name"]').value, "Quiet evenings");
+  assert.equal(panel.shadowRoot.querySelector('.create-group').open, true);
+});

@@ -1,4 +1,123 @@
 (() => {
+  // src/translations/en.json
+  var en_default = {
+    until_cleared: "Until cleared",
+    unable_to_load_modes: "Unable to load modes.",
+    the_action_failed_try_again: "The action failed. Try again.",
+    create_a_mode_in_devices_services_to_get_started: "Create a mode in Devices & services to get started.",
+    group: "Group",
+    mode: "Mode",
+    none_normal_behavior: "None \xB7 normal behavior",
+    duration: "Duration",
+    apply: "Apply",
+    priority: "{value1} \xB7 priority {value2}",
+    no_managed_settings_use_this_mode_as_an_automation_condition: "No managed settings. Use this mode as an automation condition.",
+    normal_behavior: "Normal behavior",
+    started: "Started {value1} \xB7 {value2}",
+    ends: "Ends {value1}",
+    effective_overridden: "{value1} effective \xB7 {value2} overridden",
+    no_modes_yet_choose_this_group_when_adding_a_mode_in_devices_services: "No modes yet. Choose this group when adding a mode in Devices & services.",
+    create_group: "Create group",
+    group_name: "Group name",
+    refresh_modes: "Refresh modes",
+    add_mode: "Add mode",
+    integration_settings: "Integration settings",
+    home_modes: "Home modes",
+    "common.retry": "Retry",
+    loading_modes: "Loading modes\u2026",
+    choose_a_household_setting: "Choose a household setting",
+    each_group_has_one_selected_mode_different_groups_can_stay_active_together_higher_pri: "Each group has one selected mode. Different groups can stay active together; higher priorities override conflicting settings. Choose None to clear a group.",
+    your_groups: "Your groups",
+    some_device_actions_need_attention: "Some device actions need attention.",
+    view_details: "View details",
+    retry_device_actions: "Retry device actions",
+    effective_settings: "Effective settings",
+    no_settings_are_currently_controlled_by_modes: "No settings are currently controlled by modes.",
+    recent_changes: "Recent changes",
+    add_or_configure_modes_in_devices_services: "Add or configure modes in Devices & services",
+    groups_household_settings_and_temporary_overrides: "Groups, household settings, and temporary overrides",
+    changes_applied: "Changes applied",
+    "30_minutes": "30 minutes",
+    "1_hour": "1 hour",
+    "2_hours": "2 hours",
+    "8_hours": "8 hours",
+    brightness: " \xB7 brightness {value}%",
+    overridden_by: " \xB7 overridden by {name}",
+    active: "active",
+    inactive: "inactive"
+  };
+
+  // node_modules/@ha-plus/ui/src/dom.js
+  function el(tag, text, className) {
+    const node = document.createElement(tag);
+    if (text !== void 0) node.textContent = text;
+    if (className) node.className = className;
+    return node;
+  }
+  function icon(name) {
+    const node = el("ha-icon");
+    node.setAttribute("icon", name);
+    return node;
+  }
+  function button(text, handler, disabled = false, className) {
+    const registry = document.defaultView?.customElements;
+    const native = registry?.get("ha-button") ? "ha-button" : registry?.get("mwc-button") ? "mwc-button" : "button";
+    const node = el(native, text, className);
+    node.type = "button";
+    node.disabled = disabled;
+    if (native === "ha-button") node.appearance = className?.split(" ").includes("primary") ? "accent" : "plain";
+    if (native === "mwc-button") node.raised = Boolean(className?.split(" ").includes("primary"));
+    node.addEventListener("click", () => {
+      if (!node.disabled) handler();
+    });
+    return node;
+  }
+
+  // node_modules/@ha-plus/ui/src/native.js
+  function iconButton(label, name, handler, disabled = false) {
+    const node = el("ha-icon-button");
+    node.label = label;
+    node.disabled = disabled;
+    node.append(icon(name));
+    node.addEventListener("click", () => {
+      if (!node.disabled) handler();
+    });
+    return node;
+  }
+  function nativeTextField(label, value, change) {
+    const node = el(customElements.get("ha-input") ? "ha-input" : "ha-textfield");
+    node.label = label;
+    node.placeholder = label;
+    node.value = value;
+    node.setAttribute("aria-label", label);
+    node.addEventListener("input", () => change(node.value));
+    return node;
+  }
+  function nativeForm(hass, schema, data, change) {
+    const form = el("ha-form");
+    form.hass = hass;
+    form.schema = schema;
+    form.data = data;
+    form.computeLabel = (field) => field.label;
+    form.computeHelper = (field) => field.helper;
+    form.addEventListener("value-changed", (event) => {
+      event.stopPropagation();
+      form.data = event.detail.value;
+      change(event.detail.value);
+    });
+    return form;
+  }
+  async function focusControl(control) {
+    if (!control) return;
+    await control.updateComplete;
+    if (!control.isConnected) return;
+    const inner = control.shadowRoot?.querySelector(
+      "ha-selector, ha-selector-select, ha-select, ha-picker-field, ha-combo-box, ha-input, ha-textfield, input, textarea, button, [tabindex='0']"
+    );
+    if (inner) return focusControl(inner);
+    control.focus?.();
+  }
+
   // node_modules/@ha-plus/ui/src/styles.js
   var themeStyles = `
   :host { display:block; color:var(--primary-text-color,#212121); font-family:var(--primary-font-family,var(--paper-font-body1_-_font-family,Roboto,sans-serif)); }
@@ -24,7 +143,7 @@
   .listbox { position:absolute; z-index:10; inset-inline:0; top:100%; margin-top:4px; max-height:300px; overflow:auto; padding:6px; background:var(--card-background-color,#fff); border:1px solid var(--divider-color,#e0e0e0); border-radius:14px; box-shadow:var(--ha-card-box-shadow,0 4px 16px #0003); }
   .option { display:block; width:100%; text-align:start; border-radius:10px; background:transparent; color:var(--primary-text-color,#212121); white-space:normal; overflow-wrap:anywhere; }
   .option[aria-selected=true] { color:var(--primary-color,#03a9f4); background:var(--secondary-background-color,#f5f5f5); }
-  .ha-plus-header { display:flex; align-items:center; gap:12px; padding:12px 16px; min-height:64px; background:var(--app-header-background-color,var(--primary-background-color,#fafafa)); color:var(--app-header-text-color,var(--primary-text-color,#212121)); }
+  .ha-plus-header { display:flex; align-items:center; gap:12px; padding:4px 16px; min-height:var(--header-height,56px); background:var(--app-header-background-color,var(--primary-background-color,#fafafa)); color:var(--app-header-text-color,var(--primary-text-color,#212121)); }
   .ha-plus-header h1 { font-size:20px; font-weight:400; flex:1; margin:0; }
   .ha-plus-content { max-width:1000px; margin:auto; padding:24px; }
   .notice { padding:12px 16px; margin-bottom:16px; background:var(--secondary-background-color,#f5f5f5); border-radius:14px; overflow-wrap:anywhere; }
@@ -36,7 +155,18 @@
   dialog form { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:12px; margin-top:24px; }
   @media(max-width:700px) { .ha-plus-content { padding:16px; } .ha-plus-header h1 { font-size:18px; } }
 `;
-  var appStyles = `${themeStyles}
+  var nativeStyles = `
+  .ha-plus-header-heading { flex: 1; min-width: 0; }
+  .ha-plus-header-heading h1 { overflow-wrap: anywhere; }
+  .ha-plus-header-heading p { margin: 4px 0 0; font-size: 12px; }
+  .ha-plus-dialog-message { white-space: pre-line; overflow-wrap: anywhere; padding: 8px 24px; }
+  .ha-plus-dialog-actions { display: flex; flex-wrap: wrap; justify-content: end; gap: 8px; }
+  ha-alert.notice { padding: 0; background: transparent; }
+  ha-form.field { min-width: 0; }
+  .ha-plus-header { min-height: var(--header-height, 56px); border-bottom: 1px solid var(--divider-color, #e0e0e0); }
+  ha-dialog { --mdc-dialog-min-width: min(420px, calc(100vw - 32px)); --mdc-dialog-max-width: 560px; }
+`;
+  var appStyles = `${themeStyles}${nativeStyles}
   :host {
     container-type: inline-size;
   }
@@ -426,28 +556,270 @@
   }
 `;
 
+  // node_modules/@ha-plus/ui/src/preferences.js
+  function haContext() {
+    if (typeof window === "undefined") return void 0;
+    try {
+      return window.parent?.document.querySelector("home-assistant")?.hass || window.document.querySelector("home-assistant")?.hass;
+    } catch {
+      return void 0;
+    }
+  }
+  function preferences(hass = haContext()) {
+    const locale = hass?.locale || {};
+    const language = locale.language || hass?.language || "en";
+    const numberLocales = { comma_decimal: "en-US", decimal_comma: "de-DE", space_comma: "sv-SE" };
+    const numberLanguage = numberLocales[locale.number_format] || (locale.number_format === "system" && typeof navigator !== "undefined" ? navigator.language : language);
+    const direction = hass?.translationMetadata?.translations?.[language]?.isRTL || /^(ar|fa|he|ur)(-|$)/i.test(language) ? "rtl" : "ltr";
+    const dateLocales = { DMY: "en-GB", MDY: "en-US", YMD: "sv-SE" };
+    const dateLanguage = dateLocales[locale.date_format] || (locale.date_format === "system" && typeof navigator !== "undefined" ? navigator.language : language);
+    const timeLanguage = locale.time_format === "system" && typeof navigator !== "undefined" ? navigator.language : language;
+    const languageHour12 = new Intl.DateTimeFormat(timeLanguage, { hour: "numeric" }).resolvedOptions().hour12;
+    return {
+      dateLanguage,
+      language,
+      direction,
+      numberLanguage,
+      useGrouping: locale.number_format !== "none",
+      timeZone: locale.time_zone === "local" ? Intl.DateTimeFormat().resolvedOptions().timeZone : hass?.config?.time_zone,
+      hour12: ["12", "am_pm"].includes(locale.time_format) ? true : ["24", "twenty_four"].includes(locale.time_format) ? false : languageHour12,
+      unitSystem: { ...hass?.config?.unit_system }
+    };
+  }
+  function applyPreferences(host, hass) {
+    const value = preferences(hass);
+    if (host.getAttribute("dir") !== value.direction) host.setAttribute("dir", value.direction);
+    if (host.getAttribute("lang") !== value.language) host.setAttribute("lang", value.language);
+    return value;
+  }
+  function formatNumber(hass, value, options = {}) {
+    const settings = preferences(hass);
+    return new Intl.NumberFormat(settings.numberLanguage, { useGrouping: settings.useGrouping, ...options }).format(value);
+  }
+  function formatDateTime(hass, value, options = {}) {
+    const date = new Date(value);
+    if (!Number.isFinite(date.getTime())) return "\u2014";
+    const settings = preferences(hass);
+    const dateOnly = typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value);
+    return new Intl.DateTimeFormat(settings.dateLanguage, {
+      dateStyle: "medium",
+      timeStyle: dateOnly ? void 0 : "short",
+      timeZone: dateOnly ? "UTC" : settings.timeZone,
+      hour12: settings.hour12,
+      ...options
+    }).format(date);
+  }
+
+  // node_modules/@ha-plus/ui/src/translations/en.json
+  var en_default2 = {
+    save: "Save",
+    cancel: "Cancel",
+    close: "Close",
+    delete: "Delete",
+    edit: "Edit",
+    add: "Add",
+    refresh: "Refresh",
+    loading: "Loading\u2026",
+    retry: "Retry",
+    settings: "Settings",
+    yes: "Yes",
+    no: "No",
+    apply: "Apply",
+    confirm: "Confirm",
+    more_actions: "More actions",
+    dashboard_load_failed: "Home Assistant's dashboard controls could not load. Reload and try again.",
+    controls_load_failed: "Home Assistant's to-do controls could not load. Reload and try again.",
+    component_load_failed: "Home Assistant could not load {component}. Reload and try again."
+  };
+
+  // node_modules/@ha-plus/ui/src/localize.js
+  var nativeKeys = {
+    save: "ui.common.save",
+    cancel: "ui.common.cancel",
+    close: "ui.common.close",
+    delete: "ui.common.delete",
+    edit: "ui.common.edit",
+    add: "ui.common.add",
+    refresh: "ui.common.refresh",
+    loading: "ui.common.loading",
+    retry: "ui.common.retry",
+    yes: "ui.common.yes",
+    no: "ui.common.no",
+    apply: "ui.common.apply"
+  };
+  function localize(hass, messages, key, values = {}) {
+    const shortKey = key.replace(/^common\./, "");
+    const nativeKey = nativeKeys[shortKey];
+    const native = nativeKey && hass?.localize?.(nativeKey);
+    const message = native && native !== nativeKey ? native : messages[key] || en_default2[shortKey] || key;
+    return String(message).replace(/\{([\w]+)\}/g, (match, name) => {
+      if (!Object.hasOwn(values, name)) return match;
+      return typeof values[name] === "number" ? formatNumber(hass, values[name]) : String(values[name]);
+    });
+  }
+
+  // node_modules/@ha-plus/ui/src/loader.js
+  var nativeComponents;
+  async function loadNativeComponents(host) {
+    const required = ["ha-form", "ha-checkbox", "ha-dialog", "ha-icon-button"];
+    if (required.every((name) => customElements.get(name))) return;
+    if (!nativeComponents) {
+      nativeComponents = (async () => {
+        if (!window.loadCardHelpers) {
+          let resolver = host;
+          while (resolver && resolver.localName !== "partial-panel-resolver") {
+            resolver = resolver.parentElement || resolver.getRootNode().host;
+          }
+          const dashboard = Object.values(resolver?.routerOptions?.routes || {}).find((route) => route.tag === "ha-panel-lovelace");
+          if (!dashboard?.load) {
+            throw new Error(localize(host._hass, en_default2, "dashboard_load_failed"));
+          }
+          await dashboard.load();
+        }
+        const helpers = await window.loadCardHelpers();
+        const entities = helpers.createCardElement({ type: "entities", entities: [] });
+        await entities.constructor.getConfigElement();
+        helpers.createCardElement({ type: "todo-list", entity: "todo.ha_plus_ui" });
+        let loadingTimeout;
+        try {
+          await Promise.race([
+            customElements.whenDefined("hui-todo-list-card"),
+            new Promise((_, reject) => {
+              loadingTimeout = setTimeout(() => reject(new Error(localize(host._hass, en_default2, "controls_load_failed"))), 15e3);
+            })
+          ]);
+        } finally {
+          clearTimeout(loadingTimeout);
+        }
+        for (const name of required) {
+          if (!customElements.get(name)) {
+            throw new Error(localize(host._hass, en_default2, "component_load_failed", { component: name }));
+          }
+        }
+      })().catch((error) => {
+        nativeComponents = void 0;
+        throw error;
+      });
+    }
+    await nativeComponents;
+  }
+
+  // node_modules/@ha-plus/ui/src/ha-actions.js
+  function showMoreInfo(host, entityId) {
+    if (!/^[a-z_]+\.[a-z0-9_]+$/.test(entityId || "")) return false;
+    const root = host || (() => {
+      try {
+        return window.parent.document.querySelector("home-assistant");
+      } catch {
+        return void 0;
+      }
+    })();
+    if (!root) return false;
+    const Event = root.ownerDocument.defaultView.CustomEvent;
+    root.dispatchEvent(new Event("hass-more-info", { bubbles: true, composed: true, detail: { entityId } }));
+    return true;
+  }
+  function integrationUrl(domain, add = false) {
+    if (!/^[a-z0-9_]+$/.test(domain)) throw new TypeError("Invalid integration domain");
+    return add ? `/config/integrations/dashboard/add?domain=${domain}` : `/config/integrations/integration/${domain}`;
+  }
+  function showToast(host, message) {
+    if (!host) {
+      try {
+        host = window.parent.document.querySelector("home-assistant");
+      } catch {
+        return false;
+      }
+    }
+    if (!host) return false;
+    const Event = host.ownerDocument.defaultView.CustomEvent;
+    host.dispatchEvent(new Event("hass-notification", { bubbles: true, composed: true, detail: { message } }));
+    return true;
+  }
+  function overflowMenu(actions, label = localize(haContext(), {}, "more_actions")) {
+    const registry = document.defaultView?.customElements;
+    if (registry?.get("ha-dropdown")) {
+      const menu2 = el("ha-dropdown");
+      const trigger2 = iconButton(label, "mdi:dots-vertical", () => {
+      });
+      trigger2.slot = "trigger";
+      menu2.append(trigger2);
+      actions.forEach((action, index) => {
+        const item = el("ha-dropdown-item", action.label);
+        item.value = String(index);
+        item.disabled = Boolean(action.disabled);
+        menu2.append(item);
+      });
+      menu2.addEventListener("wa-select", (event) => {
+        const action = actions[Number(event.detail?.item?.value)];
+        if (action && !action.disabled) action.run();
+      });
+      return menu2;
+    }
+    if (registry?.get("ha-button-menu")) {
+      const menu2 = el("ha-button-menu");
+      const trigger2 = iconButton(label, "mdi:dots-vertical", () => {
+      });
+      trigger2.slot = "trigger";
+      menu2.append(trigger2);
+      for (const action of actions) {
+        const item = el("mwc-list-item", action.label);
+        item.disabled = Boolean(action.disabled);
+        item.addEventListener("click", () => {
+          if (!item.disabled) action.run();
+        });
+        menu2.append(item);
+      }
+      return menu2;
+    }
+    const menu = el("details", void 0, "ha-plus-overflow");
+    const trigger = el("summary", label);
+    menu.append(trigger);
+    for (const action of actions) {
+      const item = el("button", action.label);
+      item.type = "button";
+      item.disabled = Boolean(action.disabled);
+      item.addEventListener("click", () => {
+        if (!item.disabled) {
+          menu.open = false;
+          action.run();
+        }
+      });
+      menu.append(item);
+    }
+    return menu;
+  }
+  function navigate(host, path) {
+    if (!path.startsWith("/") || path.startsWith("//")) throw new TypeError("Navigation must stay within Home Assistant");
+    const view = host?.ownerDocument.defaultView || window.parent;
+    view.history.pushState(null, "", path);
+    view.dispatchEvent(new view.CustomEvent("location-changed", { detail: { replace: false } }));
+  }
+
   // node_modules/@ha-plus/ui/src/index.js
-  /*! @ha-plus/ui v0.2.0 | MIT | Copyright (c) 2026 HA+ contributors | https://github.com/zvikarp/ha-plus-packages/blob/main/LICENSE */
-  function el(tag, text, className) {
-    const node = document.createElement(tag);
-    if (text !== void 0) node.textContent = text;
-    if (className) node.className = className;
-    return node;
-  }
-  function icon(name) {
-    const node = el("ha-icon");
-    node.setAttribute("icon", name);
-    return node;
-  }
-  function button(text, handler, disabled = false, className) {
-    const node = el("button", text, className);
-    node.type = "button";
-    node.disabled = disabled;
-    node.addEventListener("click", handler);
-    return node;
-  }
+  /*! @ha-plus/ui v0.4.0-rc.4 | MIT | Copyright (c) 2026 HA+ contributors | https://github.com/zvikarp/ha-plus-packages/blob/main/LICENSE */
   var nextId = 0;
-  function dropdown(key, label, options, value, change, disabled) {
+  function dropdown(key, label, options, value, change, disabled, hass) {
+    if (document.defaultView?.customElements.get("ha-form") && hass) {
+      const selected = options.findIndex((option) => option.value === value);
+      const schema = [{
+        name: "selected",
+        label,
+        required: true,
+        selector: { select: { mode: "dropdown", options: options.map((option, index) => ({
+          value: String(index),
+          label: option.label
+        })) } }
+      }];
+      const form = nativeForm(hass, schema, { selected: selected < 0 ? void 0 : String(selected) }, (data) => {
+        const option = options.find((_, index) => String(index) === data.selected);
+        if (option && !form.disabled) change(option.value);
+      });
+      form.disabled = Boolean(disabled);
+      form.dataset.control = key;
+      form.className = "field";
+      return form;
+    }
     const field = el("div", void 0, "field");
     const labelNode = el("span", label, "field-label");
     labelNode.id = `ha-plus-label-${++nextId}`;
@@ -508,6 +880,17 @@
     return field;
   }
   function textField(label, { name, required = false, maxLength, disabled = false } = {}) {
+    const registry = document.defaultView?.customElements;
+    if (registry?.get("ha-input") || registry?.get("ha-textfield")) {
+      const input2 = nativeTextField(label, "", () => {
+      });
+      if (name !== void 0) input2.name = name;
+      input2.required = required;
+      if (maxLength !== void 0) input2.maxLength = maxLength;
+      input2.disabled = disabled;
+      input2.className = "field";
+      return { field: input2, input: input2 };
+    }
     const field = el("label", void 0, "field");
     field.append(el("span", label, "field-label"));
     const input = el("input");
@@ -520,19 +903,24 @@
     field.append(input);
     return { field, input };
   }
-  function panelHeader(title, { hass, narrow, actions = [] } = {}) {
+  function panelHeader(title, { hass, narrow, actions = [], subtitle } = {}) {
     const header = el("header", void 0, "ha-plus-header");
     const menu = el("ha-menu-button");
     menu.hass = hass;
     menu.narrow = narrow;
-    header.append(menu, el("h1", title), ...actions);
+    const heading = el("div", void 0, "ha-plus-header-heading");
+    heading.append(el("h1", title));
+    if (subtitle) heading.append(el("p", subtitle, "ha-plus-muted"));
+    header.append(menu, heading, ...actions);
     return header;
   }
   function notice(message, kind = "status") {
     if (!["status", "loading", "empty", "error"].includes(kind)) {
       throw new TypeError("Unknown notice kind");
     }
-    const node = el("div", message, kind === "error" ? "notice error" : "notice");
+    const native = Boolean(document.defaultView?.customElements.get("ha-alert"));
+    const node = el(native ? "ha-alert" : "div", message, kind === "error" ? "notice error" : "notice");
+    if (native) node.setAttribute("alert-type", kind === "error" ? "error" : "info");
     node.setAttribute("role", kind === "error" ? "alert" : "status");
     node.setAttribute("aria-live", kind === "error" ? "assertive" : "polite");
     if (kind === "loading") node.setAttribute("aria-busy", "true");
@@ -540,17 +928,18 @@
   }
 
   // src/modes-plus.js
+  var t = (key, values) => localize(haContext(), en_default, key, values);
   var DOMAIN = "modes_plus";
   var LOGO_PATH = "M486.311003,109.999628L486.311003,401.999167C486.311003,448.360304 448.671798,485.999328 402.310872,485.999328L110.310822,485.999328C63.949897,485.999328 26.310691,448.360304 26.310691,401.999167L26.310691,385.540691L257.810744,385.540691C329.306921,385.540691 387.352601,327.495493 387.352601,255.999398C387.352601,184.503302 329.306921,126.458104 257.810744,126.458104L26.310691,126.458104L26.310691,109.999628C26.310691,63.638491 63.949897,25.999467 110.310822,25.999467L402.310872,25.999467C448.671798,25.999467 486.311003,63.638491 486.311003,109.999628ZM360.269124,255.999398C360.269124,312.547517 314.359153,358.457719 257.810744,358.457719L26.310691,358.457719L26.310691,153.541076L257.810744,153.541076C314.359153,153.541076 360.269124,199.451278 360.269124,255.999398ZM164.561139,255.999398C164.561139,306.637712 205.672754,347.749342 256.310847,347.749342C306.948940,347.749342 348.060555,306.637712 348.060555,255.999398C348.060555,205.361083 306.948940,164.249453 256.310847,164.249453C205.672754,164.249453 164.561139,205.361083 164.561139,255.999398ZM270.409264,185.999715C270.409264,205.506160 273.438428,214.011755 286.672051,227.245167C293.807392,234.380545 299.716417,238.371353 305.659787,240.487868C310.869839,242.343239 316.692103,243.038403 326.311007,243.038403C345.108664,243.038403 345.108664,268.960973 326.311007,268.960973C316.670671,268.960973 310.856091,269.653718 305.654329,271.506293C299.720746,273.619503 293.817117,277.609258 286.671829,284.754431C273.452860,297.972850 270.409264,306.519798 270.409264,325.999661C270.409264,343.281375 242.212779,343.281375 242.212779,325.999661C242.212779,306.493216 239.183615,297.987621 225.949991,284.754209C218.814650,277.618831 212.905626,273.628024 206.962255,271.511508C201.752204,269.656137 195.929940,268.960973 186.311036,268.960973C167.513379,268.960973 167.513379,243.038403 186.311036,243.038403C195.951372,243.038403 201.765952,242.345658 206.967713,240.493083C212.901296,238.379873 218.804926,234.390118 225.950214,227.244945C239.169183,214.026526 242.212779,205.479578 242.212779,185.999715C242.212779,168.718001 270.409264,168.718001 270.409264,185.999715Z";
   window.customIcons = window.customIcons || {};
   window.customIcons["modes-plus"] = {
     getIcon: async (name) => name === "logo" ? { path: LOGO_PATH, viewBox: "0 0 513 512" } : void 0
   };
-  var DURATIONS = [[0, "Until cleared"], [30, "30 minutes"], [60, "1 hour"], [120, "2 hours"], [480, "8 hours"]];
-  function when(value) {
-    return new Date(value).toLocaleString();
-  }
+  var DURATIONS = [[0, "until_cleared"], [30, "30_minutes"], [60, "1_hour"], [120, "2_hours"], [480, "8_hours"]];
   var ModesView = class extends HTMLElement {
+    _t(key, values) {
+      return localize(this._hass, en_default, key, values);
+    }
     constructor() {
       super();
       this.attachShadow({ mode: "open" });
@@ -569,7 +958,8 @@
     }
     set narrow(value) {
       this._narrow = value;
-      if (this._data) this._render();
+      const menu = this.shadowRoot.querySelector("ha-menu-button");
+      if (menu) menu.narrow = value;
     }
     get narrow() {
       return this._narrow;
@@ -577,9 +967,27 @@
     set hass(value) {
       const previous = this._hass;
       this._hass = value;
+      applyPreferences(this, value);
+      const menu = this.shadowRoot.querySelector("ha-menu-button");
+      if (menu) menu.hass = value;
+      if (value.connection && !this._nativeLoading && !this._nativeReady) this._loadNative();
       if (!this.isConnected) return;
       const changed = !previous || Object.keys(value.states).some((key) => value.states[key].attributes.mode_id && value.states[key] !== previous.states[key]) || Object.keys(previous.states).some((key) => previous.states[key].attributes.mode_id && !value.states[key]);
       if (changed || !this._data) this._refresh();
+      else if (previous?.locale !== value.locale && !this._busy && !this.shadowRoot.activeElement) this._render();
+    }
+    async _loadNative() {
+      this._nativeLoading = true;
+      try {
+        await loadNativeComponents(this);
+        this._nativeReady = true;
+        this._uiError = "";
+      } catch (error) {
+        this._uiError = error.message;
+      } finally {
+        this._nativeLoading = false;
+        if (this.isConnected) this._render();
+      }
     }
     connectedCallback() {
       this.ownerDocument.addEventListener("pointerdown", this._outside, true);
@@ -604,7 +1012,7 @@
           this._error = "";
         }
       } catch (error) {
-        this._error = error.message || "Unable to load modes.";
+        this._error = error.message || this._t("unable_to_load_modes");
       } finally {
         this._loading = false;
         if (this.isConnected) this._render();
@@ -620,8 +1028,9 @@
       this._render();
       try {
         await request();
+        showToast(this, this._t("changes_applied"));
       } catch (error) {
-        this._error = error.message || "The action failed. Try again.";
+        this._error = error.message || this._t("the_action_failed_try_again");
       } finally {
         this._busy = false;
         const error = this._error;
@@ -652,7 +1061,7 @@
         this._selection.mode = group?.members.find((mode) => mode.active)?.id || "";
       }
       this._render();
-      this.shadowRoot.querySelector(`[data-control="${key}"]`)?.focus();
+      focusControl(this.shadowRoot.querySelector(`[data-control="${key}"]`));
     }
     _apply(group) {
       return this._action("select", {
@@ -663,7 +1072,7 @@
       });
     }
     _controls(groups) {
-      if (!groups.length) return el("p", "Create a mode in Devices & services to get started.", "ha-plus-muted");
+      if (!groups.length) return el("p", this._t("create_a_mode_in_devices_services_to_get_started"), "ha-plus-muted");
       let group = groups.find((item) => item.key === this._selection.group);
       if (!group) {
         group = groups[0];
@@ -673,23 +1082,27 @@
       if (!group.members.some((mode) => mode.id === this._selection.mode)) this._selection.mode = "";
       const form = el("div", void 0, "controls ha-plus-form-grid");
       form.append(
-        dropdown("group", "Group", groups.map((item) => ({ value: item.key, label: item.name })), group.key, (value) => this._choose("group", value), this._busy),
-        dropdown("mode", "Mode", [{ value: "", label: "None \xB7 normal behavior" }, ...group.members.map((mode) => ({ value: mode.id, label: mode.name }))], this._selection.mode, (value) => this._choose("mode", value), this._busy || !group.members.length),
-        dropdown("duration", "Duration", DURATIONS.map(([value, label]) => ({ value, label })), this._selection.duration, (value) => this._choose("duration", value), this._busy || !this._selection.mode),
-        button("Apply", () => this._apply(group), this._busy || !group.members.length, "primary")
+        dropdown("group", this._t("group"), groups.map((item) => ({ value: item.key, label: item.name })), group.key, (value) => this._choose("group", value), this._busy, this._hass),
+        dropdown("mode", this._t("mode"), [{ value: "", label: this._t("none_normal_behavior") }, ...group.members.map((mode) => ({ value: mode.id, label: mode.name }))], this._selection.mode, (value) => this._choose("mode", value), this._busy || !group.members.length, this._hass),
+        dropdown("duration", this._t("duration"), DURATIONS.map(([value, label]) => ({ value, label: this._t(label) })), this._selection.duration, (value) => this._choose("duration", value), this._busy || !this._selection.mode, this._hass),
+        button(this._t("apply"), () => this._apply(group), this._busy || !group.members.length, "primary")
       );
       return form;
     }
     _modeDetails(mode) {
       const detail = el("details");
-      detail.append(el("summary", `${mode.name} \xB7 priority ${mode.priority}`));
+      detail.append(el("summary", this._t("priority", { value1: mode.name, value2: mode.priority })));
       for (const [key, effect] of Object.entries(mode.effects)) {
         const owner = this._data.modes.find((item) => item.id === this._data.effects[key]?.mode_id);
         const name = this._hass.states[key]?.attributes.friendly_name || key;
-        detail.append(el("p", `${name}: ${effect.state}${effect.brightness ? ` \xB7 brightness ${Math.round(effect.brightness / 255 * 100)}%` : ""}${mode.active && owner && owner.id !== mode.id ? ` \xB7 overridden by ${owner.name}` : ""}`));
+        const row = el("p");
+        row.append(button(name, () => showMoreInfo(this, key), !this._hass.states[key], "ha-plus-text-button"), el("span", ` \xB7 ${effect.state}`));
+        if (effect.brightness != null) row.append(el("span", this._t("brightness", { value: Math.round(effect.brightness / 255 * 100) })));
+        if (mode.active && owner && owner.id !== mode.id) row.append(el("span", this._t("overridden_by", { name: owner.name })));
+        detail.append(row);
       }
       for (const [key, value] of Object.entries(mode.values)) detail.append(el("p", `${key}: ${value}`));
-      if (!Object.keys(mode.effects).length && !Object.keys(mode.values).length) detail.append(el("p", "No managed settings. Use this mode as an automation condition.", "ha-plus-muted"));
+      if (!Object.keys(mode.effects).length && !Object.keys(mode.values).length) detail.append(el("p", this._t("no_managed_settings_use_this_mode_as_an_automation_condition"), "ha-plus-muted"));
       return detail;
     }
     _groupCard(group) {
@@ -697,37 +1110,46 @@
       const card = el("ha-card", void 0, `group ha-plus-group ha-plus-padded-card${active ? " active" : ""}`);
       const row = el("div", void 0, "ha-plus-row");
       row.append(icon(active?.icon || "mdi:layers-outline"), el("h3", group.name));
-      card.append(row, el("p", active?.name || "Normal behavior", "group-state ha-plus-value"));
+      card.append(row, el("p", active?.name || this._t("normal_behavior"), "group-state ha-plus-value"));
       if (active) {
-        card.append(el("p", `Started ${when(active.active.since)} \xB7 ${active.active.source}`, "ha-plus-muted"));
-        if (active.active.until) card.append(el("p", `Ends ${when(active.active.until)}`, "ha-plus-muted"));
+        card.append(el("p", this._t("started", { value1: formatDateTime(this._hass, active.active.since), value2: active.active.source }), "ha-plus-muted"));
+        if (active.active.until) card.append(el("p", this._t("ends", { value1: formatDateTime(this._hass, active.active.until) }), "ha-plus-muted"));
         const owned = [...Object.values(this._data.effects), ...Object.values(this._data.values)].filter((item) => item.mode_id === active.id).length;
         const total = Object.keys(active.effects).length + Object.keys(active.values).length;
-        card.append(el("p", `${owned} effective \xB7 ${total - owned} overridden`, "ha-plus-muted"));
+        card.append(el("p", this._t("effective_overridden", { value1: owned, value2: total - owned }), "ha-plus-muted"));
       }
       const chips = el("div", void 0, "ha-plus-chips");
       for (const mode of group.members) {
         const chip = el("span", void 0, `chip ha-plus-chip${mode.active ? " active" : ""}`);
         chip.append(icon(mode.icon || "mdi:home-switch"), el("span", mode.name));
-        chip.setAttribute("aria-label", `${mode.name}: ${mode.active ? "active" : "inactive"}`);
+        chip.setAttribute("aria-label", `${mode.name}: ${this._t(mode.active ? "active" : "inactive")}`);
         chips.append(chip);
       }
       card.append(chips);
-      if (!group.members.length) card.append(el("p", "No modes yet. Choose this group when adding a mode in Devices & services.", "ha-plus-muted"));
+      if (!group.members.length) card.append(el("p", this._t("no_modes_yet_choose_this_group_when_adding_a_mode_in_devices_services"), "ha-plus-muted"));
       for (const mode of group.members) card.append(this._modeDetails(mode));
       return card;
     }
     _newGroup() {
       const detail = el("details", void 0, "create-group ha-plus-create");
-      detail.append(el("summary", "Create group"));
+      detail.open = Boolean(this._creatingGroup);
+      detail.addEventListener("toggle", () => {
+        this._creatingGroup = detail.open;
+      });
+      detail.append(el("summary", this._t("create_group")));
       const form = el("form");
-      const { field, input } = textField("Group name", {
+      const { field, input } = textField(this._t("group_name"), {
         name: "group_name",
         required: true,
         maxLength: 80,
         disabled: this._busy
       });
-      const submit = el("button", "Create group");
+      input.value = this._groupDraft || "";
+      input.dataset.control = "new-group";
+      input.addEventListener("input", () => {
+        this._groupDraft = input.value;
+      });
+      const submit = el("button", this._t("create_group"));
       submit.type = "submit";
       submit.disabled = this._busy;
       form.append(field, submit);
@@ -737,6 +1159,7 @@
         if (!name) return;
         this._perform(async () => {
           const result = await this._hass.callWS({ type: "modes_plus/create_group", name });
+          this._groupDraft = "";
           this._selection.group = `group:${result.name}`;
           this._selection.mode = "";
           this._selection.duration = 0;
@@ -751,22 +1174,34 @@
       const compact = this.localName === "modes-plus-card";
       const root = el(compact ? "ha-card" : "div", void 0, compact ? "ha-plus-compact" : "");
       if (!compact) {
-        const refresh = button(void 0, () => this._refresh(), this._loading, "icon-button");
-        refresh.setAttribute("aria-label", "Refresh modes");
-        refresh.title = "Refresh modes";
-        refresh.append(icon("mdi:refresh"));
-        root.append(panelHeader("HA+ Modes", { hass: this._hass, narrow: this.narrow, actions: [refresh] }));
+        const refresh = iconButton(this._t("refresh_modes"), "mdi:refresh", () => this._refresh(), this._loading);
+        refresh.setAttribute("aria-label", this._t("refresh_modes"));
+        const actions = [refresh];
+        if (this._hass?.user?.is_admin) actions.push(overflowMenu([
+          { label: this._t("add_mode"), run: () => {
+            navigate(this, integrationUrl(DOMAIN, true));
+          } },
+          { label: this._t("integration_settings"), run: () => {
+            navigate(this, integrationUrl(DOMAIN));
+          } }
+        ]));
+        root.append(panelHeader("HA+ Modes", { hass: this._hass, narrow: this.narrow, actions }));
       }
       const main = el("main", void 0, compact ? "ha-plus-compact-content" : "ha-plus-content");
       root.append(main);
-      if (compact) main.append(el("h2", this._config?.title || "Home modes"));
+      if (compact) main.append(el("h2", this._config?.title || this._t("home_modes")));
+      if (this._uiError) {
+        const error = notice(this._uiError, "error");
+        error.append(button(this._t("common.retry"), () => this._loadNative()));
+        main.append(error);
+      }
       if (this._error) {
         const error = notice(this._error, "error");
-        error.append(button("Retry", () => this._refresh()));
+        error.append(button(this._t("common.retry"), () => this._refresh()));
         main.append(error);
       }
       if (!this._data) {
-        if (!this._error) main.append(notice("Loading modes\u2026", "loading"));
+        if (!this._error) main.append(notice(this._t("loading_modes"), "loading"));
         this.shadowRoot.append(root);
         return;
       }
@@ -774,14 +1209,14 @@
       const groups = this._groups(modes);
       this._currentGroups = groups;
       const controls = compact ? el("section") : el("ha-card", void 0, "ha-plus-padded-card");
-      if (!compact) controls.append(el("h2", "Choose a household setting"));
+      if (!compact) controls.append(el("h2", this._t("choose_a_household_setting")));
       controls.append(this._controls(groups));
       if (!compact) {
-        controls.append(el("p", "Each group has one selected mode. Different groups can stay active together; higher priorities override conflicting settings. Choose None to clear a group.", "ha-plus-muted"));
+        controls.append(el("p", this._t("each_group_has_one_selected_mode_different_groups_can_stay_active_together_higher_pri"), "ha-plus-muted"));
         if (this._hass.user?.is_admin) controls.append(this._newGroup());
       }
       main.append(controls);
-      if (!compact) main.append(el("h2", "Your groups"));
+      if (!compact) main.append(el("h2", this._t("your_groups")));
       const grid = el("section", void 0, "grid ha-plus-card-grid");
       for (const group of groups) grid.append(this._groupCard(group));
       main.append(grid);
@@ -789,16 +1224,16 @@
       if (errors.length) {
         const box = el("div", void 0, "notice error");
         box.setAttribute("role", "alert");
-        box.append(el("p", "Some device actions need attention."));
+        box.append(el("p", this._t("some_device_actions_need_attention")));
         if (!compact) for (const [key, error] of errors) box.append(el("p", `${key}: ${error}`));
-        const link = el("a", "View details");
+        const link = el("a", this._t("view_details"));
         link.href = "/ha-plus-modes";
-        box.append(link, button("Retry device actions", () => this._action("retry", {}), this._busy));
+        box.append(link, button(this._t("retry_device_actions"), () => this._action("retry", {}), this._busy));
         main.append(box);
       }
       if (!compact) {
         const explain = el("ha-card", void 0, "ha-plus-padded-card");
-        explain.append(el("h2", "Effective settings"));
+        explain.append(el("h2", this._t("effective_settings")));
         for (const [key, item] of Object.entries(this._data.effects)) {
           const owner = this._data.modes.find((mode) => mode.id === item.mode_id);
           explain.append(el("div", `${this._hass.states[key]?.attributes.friendly_name || key} \u2192 ${item.desired.state}${item.desired.brightness ? ` \xB7 ${Math.round(item.desired.brightness / 255 * 100)}%` : ""} \xB7 ${owner?.group ? owner.group + " / " : ""}${owner?.name || item.mode_id}`, "ha-plus-detail-row"));
@@ -807,20 +1242,20 @@
           const owner = this._data.modes.find((mode) => mode.id === item.mode_id);
           explain.append(el("div", `${key} \u2192 ${item.value} \xB7 ${owner?.group ? owner.group + " / " : ""}${owner?.name}`, "ha-plus-detail-row"));
         }
-        if (!Object.keys(this._data.effects).length && !Object.keys(this._data.values).length) explain.append(el("p", "No settings are currently controlled by modes.", "ha-plus-muted"));
+        if (!Object.keys(this._data.effects).length && !Object.keys(this._data.values).length) explain.append(el("p", this._t("no_settings_are_currently_controlled_by_modes"), "ha-plus-muted"));
         main.append(explain);
         const history = el("details");
-        history.append(el("summary", "Recent changes"));
-        for (const item of this._data.history) history.append(el("p", `${item.mode} ${item.active ? "selected" : "cleared"} \xB7 ${when(item.at)}`, "ha-plus-muted"));
+        history.append(el("summary", this._t("recent_changes")));
+        for (const item of this._data.history) history.append(el("p", `${item.mode} ${item.active ? "selected" : "cleared"} \xB7 ${formatDateTime(this._hass, item.at)}`, "ha-plus-muted"));
         main.append(history);
         if (this._hass.user?.is_admin) {
-          const link = el("a", "Add or configure modes in Devices & services");
+          const link = el("a", this._t("add_or_configure_modes_in_devices_services"));
           link.href = "/config/integrations/integration/modes_plus";
           main.append(link);
         }
       }
       this.shadowRoot.append(root);
-      if (focused) this.shadowRoot.querySelector(`[data-control="${focused}"]`)?.focus();
+      if (focused) focusControl(this.shadowRoot.querySelector(`[data-control="${focused}"]`));
     }
   };
   var ModesPlusPanel = class extends ModesView {
@@ -835,11 +1270,11 @@
       return 5;
     }
     static getStubConfig() {
-      return { title: "Home modes" };
+      return { title: this._t("home_modes") };
     }
   };
   if (!customElements.get("modes-plus-panel")) customElements.define("modes-plus-panel", ModesPlusPanel);
   if (!customElements.get("modes-plus-card")) customElements.define("modes-plus-card", ModesPlusCard);
   window.customCards = window.customCards || [];
-  if (!window.customCards.some((card) => card.type === "modes-plus-card")) window.customCards.push({ type: "modes-plus-card", name: "HA+ Modes", description: "Groups, household settings, and temporary overrides", preview: true });
+  if (!window.customCards.some((card) => card.type === "modes-plus-card")) window.customCards.push({ type: "modes-plus-card", name: "HA+ Modes", description: t("groups_household_settings_and_temporary_overrides"), preview: true });
 })();
